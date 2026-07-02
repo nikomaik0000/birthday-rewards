@@ -1,0 +1,209 @@
+"use client";
+
+import { useEffect, useMemo, useState, useRef, useCallback } from "react";
+import { BarChart3 } from "lucide-react";
+import { SearchBar } from "@/components/search-bar";
+import { FilterPanel } from "@/components/filter-panel";
+import { SortMenu } from "@/components/sort-menu";
+import { ViewToggle } from "@/components/view-toggle";
+import { RewardCard } from "@/components/reward-card";
+import { RewardTable } from "@/components/reward-table";
+import { EmptyState } from "@/components/empty-state";
+import { DashboardStatsPanel } from "@/components/dashboard-stats";
+import { QuickAddDialog } from "@/components/quick-add-dialog";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { Button } from "@/components/ui/button";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import { useViewMode } from "@/hooks/use-view-mode";
+import { DEFAULT_FILTERS, type RewardFilters, type RewardWithTags, type SortKey } from "@/lib/types";
+import { computeDashboardStats } from "@/lib/stats";
+import { toggleFavorite, toggleUsed, trackClick } from "@/app/actions/rewards";
+import type { TagRow } from "@/lib/database.types";
+import { getExpiryInfo } from "@/lib/utils";
+
+const PAGE_SIZE = 24;
+
+export function RewardExplorer({
+  initialRewards,
+  allTags,
+}: {
+  initialRewards: RewardWithTags[];
+  allTags: TagRow[];
+}) {
+  const [rewards, setRewards] = useState(initialRewards);
+  const [filters, setFilters] = useState<RewardFilters>(DEFAULT_FILTERS);
+  const [sort, setSort] = useState<SortKey>("expiry_asc");
+  const [viewMode, setViewMode] = useViewMode("card");
+  const [showStats, setShowStats] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+
+  const debouncedQuery = useDebouncedValue(filters.query, 150);
+
+  const filtered = useMemo(() => {
+    let list = rewards;
+
+    if (debouncedQuery.trim()) {
+      const q = debouncedQuery.trim().toLowerCase();
+      list = list.filter((r) => {
+        const tagText = r.tags.map((t) => t.name).join(" ").toLowerCase();
+        return (
+          r.store_name.toLowerCase().includes(q) ||
+          r.content.toLowerCase().includes(q) ||
+          r.notes.toLowerCase().includes(q) ||
+          r.category.toLowerCase().includes(q) ||
+          tagText.includes(q)
+        );
+      });
+    }
+
+    if (filters.categories.length) list = list.filter((r) => filters.categories.includes(r.category));
+    if (filters.dateCategories.length)
+      list = list.filter((r) => filters.dateCategories.includes(r.date_category));
+    if (filters.scores.length) list = list.filter((r) => filters.scores.includes(r.score));
+    if (filters.favoriteOnly) list = list.filter((r) => r.is_favorite);
+    if (filters.usedFilter === "used") list = list.filter((r) => r.is_used);
+    if (filters.usedFilter === "unused") list = list.filter((r) => !r.is_used);
+    if (filters.tagIds.length)
+      list = list.filter((r) => r.tags.some((t) => filters.tagIds.includes(t.id)));
+    if (filters.hideExpired)
+      list = list.filter((r) => getExpiryInfo(r.expiry_date).state !== "expired");
+
+    return list;
+  }, [rewards, debouncedQuery, filters]);
+
+  const sorted = useMemo(() => {
+    const list = [...filtered];
+    switch (sort) {
+      case "expiry_asc":
+        return list.sort((a, b) => {
+          if (!a.expiry_date && !b.expiry_date) return 0;
+          if (!a.expiry_date) return 1;
+          if (!b.expiry_date) return -1;
+          return a.expiry_date.localeCompare(b.expiry_date);
+        });
+      case "score_desc":
+        return list.sort((a, b) => b.score - a.score);
+      case "clicks_desc":
+        return list.sort((a, b) => b.click_count - a.click_count);
+      case "store_name_asc":
+        return list.sort((a, b) => a.store_name.localeCompare(b.store_name, "zh-Hant"));
+      case "created_desc":
+        return list.sort((a, b) => b.created_at.localeCompare(a.created_at));
+      case "updated_desc":
+        return list.sort((a, b) => b.updated_at.localeCompare(a.updated_at));
+      default:
+        return list;
+    }
+  }, [filtered, sort]);
+
+  useEffect(() => setVisibleCount(PAGE_SIZE), [debouncedQuery, filters, sort]);
+
+  const visible = sorted.slice(0, visibleCount);
+
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setVisibleCount((c) => Math.min(c + PAGE_SIZE, sorted.length));
+        }
+      },
+      { rootMargin: "600px" }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [sorted.length]);
+
+  const handleToggleFavorite = useCallback((id: string, next: boolean) => {
+    setRewards((prev) => prev.map((r) => (r.id === id ? { ...r, is_favorite: next } : r)));
+    toggleFavorite(id, next).catch(() => {
+      setRewards((prev) => prev.map((r) => (r.id === id ? { ...r, is_favorite: !next } : r)));
+    });
+  }, []);
+
+  const handleToggleUsed = useCallback((id: string, next: boolean) => {
+    setRewards((prev) => prev.map((r) => (r.id === id ? { ...r, is_used: next } : r)));
+    toggleUsed(id, next).catch(() => {
+      setRewards((prev) => prev.map((r) => (r.id === id ? { ...r, is_used: !next } : r)));
+    });
+  }, []);
+
+  const handleVisit = useCallback((id: string) => {
+    setRewards((prev) => prev.map((r) => (r.id === id ? { ...r, click_count: r.click_count + 1 } : r)));
+    trackClick(id).catch(() => {});
+  }, []);
+
+  const activeFilterCount =
+    filters.categories.length +
+    filters.dateCategories.length +
+    filters.scores.length +
+    filters.tagIds.length +
+    (filters.favoriteOnly ? 1 : 0) +
+    (filters.usedFilter !== "all" ? 1 : 0) +
+    (filters.hideExpired ? 1 : 0);
+
+  const stats = useMemo(() => computeDashboardStats(rewards), [rewards]);
+
+  return (
+    <div className="mx-auto max-w-6xl px-4 pb-24 pt-4 sm:px-6">
+      <header className="sticky top-0 z-20 -mx-4 mb-5 border-b border-border bg-bg/90 px-4 pb-3 pt-2 backdrop-blur sm:-mx-6 sm:px-6 dark:border-border-dark dark:bg-bg-dark/90">
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <h1 className="text-title font-semibold">生日優惠整理</h1>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" onClick={() => setShowStats((v) => !v)} aria-label="切換儀表板">
+              <BarChart3 className="h-4 w-4" />
+            </Button>
+            <ThemeToggle />
+            <QuickAddDialog />
+          </div>
+        </div>
+        <SearchBar value={filters.query} onChange={(query) => setFilters((f) => ({ ...f, query }))} />
+        <div className="mt-3 flex items-center justify-between gap-2">
+          <div className="flex-1">
+            <FilterPanel filters={filters} onChange={setFilters} allTags={allTags} activeCount={activeFilterCount} />
+          </div>
+        </div>
+        <div className="mt-2 flex items-center justify-between">
+          <span className="text-xs text-muted">共 {sorted.length} 筆優惠</span>
+          <div className="flex items-center gap-2">
+            <SortMenu value={sort} onChange={setSort} />
+            <ViewToggle mode={viewMode} onChange={setViewMode} />
+          </div>
+        </div>
+      </header>
+
+      {showStats && (
+        <div className="mb-5 animate-slideUp">
+          <DashboardStatsPanel stats={stats} />
+        </div>
+      )}
+
+      {sorted.length === 0 ? (
+        <EmptyState />
+      ) : viewMode === "table" ? (
+        <RewardTable
+          rewards={visible}
+          onToggleFavorite={handleToggleFavorite}
+          onToggleUsed={handleToggleUsed}
+          onVisit={handleVisit}
+        />
+      ) : (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {visible.map((r) => (
+            <RewardCard
+              key={r.id}
+              reward={r}
+              onToggleFavorite={handleToggleFavorite}
+              onToggleUsed={handleToggleUsed}
+              onVisit={handleVisit}
+            />
+          ))}
+        </div>
+      )}
+
+      {visibleCount < sorted.length && <div ref={sentinelRef} className="h-10" />}
+    </div>
+  );
+}

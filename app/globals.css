@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-bg text-ink antialiased;
+    font-feature-settings: "cv11", "ss01";
+  }
+
+  html.dark body {
+    @apply bg-bg-dark text-ink-dark;
+  }
+
+  * {
+    @apply border-border;
+  }
+  html.dark * {
+    @apply border-border-dark;
+  }
+
+  /* Visible keyboard focus, always */
+  :focus-visible {
+    outline: 2px solid #8CA3B5;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* 8px grid rhythm helper for section stacks */
+  .stack-8 > * + * {
+    margin-top: 8px;
+  }
+  .stack-16 > * + * {
+    margin-top: 16px;
+  }
+}
