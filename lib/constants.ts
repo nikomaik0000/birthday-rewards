@@ -11,18 +11,28 @@ export const CATEGORY_TAG_CLASSES: Record<Category, string> = {
   其他: "bg-tag-other text-tag-other-fg",
 };
 
-// Low-saturation palette auto-assigned to newly created free-form tags.
+// v2 UI requirement: every free-form tag must always have a soft pastel
+// background (never white). This palette is intentionally low-saturation
+// (Material/Apple/MUJI-leaning) and covers a wide spread of hues so tags
+// stay visually distinct from one another — 奶茶/珊瑚/綠/紫/粉/黃/青/灰藍 etc.
 export const TAG_COLOR_PALETTE = [
-  "#DCEBDD", // sage
-  "#F3E3D3", // sand
-  "#F5DFE6", // blush
-  "#E4E9F0", // powder blue
-  "#EAE2D0", // wheat
-  "#DDE6E3", // seafoam
-  "#EFE0EA", // lilac
-  "#E7E4DE", // stone
+  "#EAE2D0", // 奶茶色 latte
+  "#F3D9CE", // 珊瑚色 coral
+  "#DCEBDD", // 淡綠 sage
+  "#E6DCF0", // 淡紫 lavender
+  "#F5DFE6", // 淡粉 blush
+  "#F5EBC7", // 淡黃 butter
+  "#D8ECE8", // 淡青 mint-cyan
+  "#DFE4EF", // 灰藍 slate blue
+  "#F3E3D3", // 沙色 sand
+  "#E7E4DE", // 石灰 stone (fallback-ish, still not white)
 ];
 
+/**
+ * Deterministically assigns a palette color to a tag name so the same tag
+ * always renders the same color across the app. Never returns white/none —
+ * every entry above is a solid pastel hex.
+ */
 export function colorForTagName(name: string): string {
   let hash = 0;
   for (let i = 0; i < name.length; i++) {

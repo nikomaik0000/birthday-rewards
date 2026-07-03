@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState, useRef, useCallback } from "react";
-import { BarChart3 } from "lucide-react";
+import Link from "next/link";
+import { BarChart3, Lock } from "lucide-react";
 import { SearchBar } from "@/components/search-bar";
 import { FilterPanel } from "@/components/filter-panel";
 import { SortMenu } from "@/components/sort-menu";
@@ -10,7 +11,6 @@ import { RewardCard } from "@/components/reward-card";
 import { RewardTable } from "@/components/reward-table";
 import { EmptyState } from "@/components/empty-state";
 import { DashboardStatsPanel } from "@/components/dashboard-stats";
-import { QuickAddDialog } from "@/components/quick-add-dialog";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
@@ -26,9 +26,11 @@ const PAGE_SIZE = 24;
 export function RewardExplorer({
   initialRewards,
   allTags,
+  isAdmin,
 }: {
   initialRewards: RewardWithTags[];
   allTags: TagRow[];
+  isAdmin: boolean;
 }) {
   const [rewards, setRewards] = useState(initialRewards);
   const [filters, setFilters] = useState<RewardFilters>(DEFAULT_FILTERS);
@@ -156,7 +158,16 @@ export function RewardExplorer({
               <BarChart3 className="h-4 w-4" />
             </Button>
             <ThemeToggle />
-            <QuickAddDialog />
+            {/* v2: front-end "新增優惠" removed — this just links to the
+                gated /admin area for whoever knows to look for it. */}
+            <Link
+              href="/admin"
+              aria-label="後台管理"
+              title="後台管理"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-border text-muted hover:bg-surface hover:text-ink dark:border-border-dark dark:text-ink-dark/70 dark:hover:bg-surface-dark"
+            >
+              <Lock className="h-4 w-4" strokeWidth={1.75} />
+            </Link>
           </div>
         </div>
         <SearchBar value={filters.query} onChange={(query) => setFilters((f) => ({ ...f, query }))} />
@@ -186,7 +197,7 @@ export function RewardExplorer({
         <RewardTable
           rewards={visible}
           onToggleFavorite={handleToggleFavorite}
-          onToggleUsed={handleToggleUsed}
+          onToggleUsed={isAdmin ? handleToggleUsed : undefined}
           onVisit={handleVisit}
         />
       ) : (
@@ -196,7 +207,7 @@ export function RewardExplorer({
               key={r.id}
               reward={r}
               onToggleFavorite={handleToggleFavorite}
-              onToggleUsed={handleToggleUsed}
+              onToggleUsed={isAdmin ? handleToggleUsed : undefined}
               onVisit={handleVisit}
             />
           ))}

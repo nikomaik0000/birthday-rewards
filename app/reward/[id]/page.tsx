@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { ArrowLeft, Clock } from "lucide-react";
 import { getRewardWithTags, getRewardHistory } from "@/lib/queries";
+import { createClient } from "@/lib/supabase/server";
 import { StoreLogo } from "@/components/store-logo";
 import { CategoryBadge, TagBadge } from "@/components/tag-badge";
 import { StarRating } from "@/components/star-rating";
@@ -11,6 +12,7 @@ import { formatDate } from "@/lib/utils";
 import { NotesEditor } from "@/components/notes-editor";
 import { VisitTracker } from "@/components/visit-tracker";
 import { FavoriteUsedControls } from "@/components/favorite-used-controls";
+import { ReportDialog } from "@/components/report-dialog";
 
 export async function generateMetadata({
   params,
@@ -37,6 +39,14 @@ export default async function RewardDetailPage({
 
   const history = await getRewardHistory(id);
 
+  // v2: 已使用 toggle + 使用心得 editing are admin-only now, so we need to
+  // know here (server-side) whether the current visitor is signed in.
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const isAdmin = Boolean(user);
+
   return (
     <div className="mx-auto max-w-2xl px-4 py-6 sm:px-6">
       <Link href="/" className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted hover:text-ink dark:hover:text-ink-dark">
@@ -54,7 +64,10 @@ export default async function RewardDetailPage({
               <ExpiryBadge expiryDate={reward.expiry_date} />
             </div>
           </div>
-          <FavoriteUsedControls reward={reward} />
+          <div className="flex shrink-0 items-center gap-1">
+            <ReportDialog rewardId={reward.id} storeName={reward.store_name} />
+            <FavoriteUsedControls reward={reward} isAdmin={isAdmin} />
+          </div>
         </div>
 
         <p className="mt-5 whitespace-pre-wrap text-sm leading-relaxed text-ink/90 dark:text-ink-dark/90">
@@ -81,10 +94,18 @@ export default async function RewardDetailPage({
         )}
       </div>
 
-      <div className="mt-5 rounded-card border border-border bg-surface p-6 dark:border-border-dark dark:bg-surface-dark">
-        <h2 className="mb-3 text-sm font-medium">使用心得</h2>
-        <NotesEditor rewardId={reward.id} initialNotes={reward.notes} />
-      </div>
+      {/* v2: general visitors get a read-only view of 使用心得; only a
+          signed-in admin sees the editable textarea + save button. */}
+      {(isAdmin || reward.notes) && (
+        <div className="mt-5 rounded-card border border-border bg-surface p-6 dark:border-border-dark dark:bg-surface-dark">
+          <h2 className="mb-3 text-sm font-medium">使用心得</h2>
+          {isAdmin ? (
+            <NotesEditor rewardId={reward.id} initialNotes={reward.notes} />
+          ) : (
+            <p className="whitespace-pre-wrap text-sm text-ink/80 dark:text-ink-dark/80">{reward.notes}</p>
+          )}
+        </div>
+      )}
 
       {history.length > 0 && (
         <div className="mt-5 rounded-card border border-border bg-surface p-6 dark:border-border-dark dark:bg-surface-dark">

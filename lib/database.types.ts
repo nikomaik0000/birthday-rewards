@@ -72,6 +72,19 @@ export interface RewardHistoryRow {
   new_value: string | null;
 }
 
+// v2: added for the "資料回報" (report an issue) feature — see
+// supabase/migrations/002_reward_reports.sql
+export type ReportStatus = "pending" | "resolved";
+
+export interface ReportRow {
+  id: string;
+  reward_id: string;
+  message: string;
+  contact: string | null;
+  status: ReportStatus;
+  created_at: string;
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -114,11 +127,24 @@ export interface Database {
         Update: Partial<RewardHistoryRow>;
         Relationships: [];
       };
+      // v2: 資料回報 feature
+      reward_reports: {
+        Row: ReportRow;
+        Insert: Partial<ReportRow> & { reward_id: string; message: string };
+        Update: Partial<ReportRow>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
       increment_click: {
         Args: { reward_id: string };
+        Returns: void;
+      };
+      // v2: narrow, column-scoped RPC that replaces the old broad anon
+      // UPDATE policy — see migrations/003_tighten_rls.sql
+      toggle_reward_favorite: {
+        Args: { reward_id: string; favorite: boolean };
         Returns: void;
       };
     };

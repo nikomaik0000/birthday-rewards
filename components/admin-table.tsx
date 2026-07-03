@@ -124,41 +124,41 @@ export function AdminTable({ rewards }: { rewards: RewardWithTags[] }) {
         <table className="w-full min-w-[760px] border-collapse text-list">
           <thead>
             <tr className="border-b border-border bg-bg/60 dark:border-border-dark dark:bg-bg-dark/60">
-              <th className="w-10 px-3 py-2.5">
+              <th className="w-10 px-4 py-3">
                 <Checkbox checked={allSelected} onCheckedChange={toggleAll} aria-label="全選" />
               </th>
-              <th className="px-3 py-2.5 text-left font-medium text-muted">店家</th>
-              <th className="px-3 py-2.5 text-left font-medium text-muted">類別</th>
-              <th className="px-3 py-2.5 text-left font-medium text-muted">分數</th>
-              <th className="px-3 py-2.5 text-left font-medium text-muted">狀態</th>
-              <th className="px-3 py-2.5 text-left font-medium text-muted">點擊</th>
-              <th className="w-20 px-3 py-2.5" />
+              <th className="px-4 py-3 text-left font-medium text-muted">店家</th>
+              <th className="px-4 py-3 text-left font-medium text-muted">類別</th>
+              <th className="px-4 py-3 text-left font-medium text-muted">分數</th>
+              <th className="px-4 py-3 text-left font-medium text-muted">狀態</th>
+              <th className="px-4 py-3 text-left font-medium text-muted">點擊</th>
+              <th className="w-20 px-4 py-3" />
             </tr>
           </thead>
           <tbody>
             {filtered.map((r) => (
               <tr key={r.id} className="border-b border-border last:border-0 dark:border-border-dark">
-                <td className="px-3 py-2.5">
+                <td className="px-4 py-3">
                   <Checkbox checked={selected.has(r.id)} onCheckedChange={() => toggleOne(r.id)} aria-label={`選取 ${r.store_name}`} />
                 </td>
-                <td className="px-3 py-2.5">
+                <td className="px-4 py-3">
                   <div className="flex items-center gap-2.5">
                     <StoreLogo name={r.store_name} logoUrl={r.logo_url} size={24} />
                     <span className="font-medium">{r.store_name}</span>
                   </div>
                 </td>
-                <td className="px-3 py-2.5">
+                <td className="px-4 py-3">
                   <CategoryBadge category={r.category} />
                 </td>
-                <td className="px-3 py-2.5">
+                <td className="px-4 py-3">
                   <StarRating score={r.score} />
                 </td>
-                <td className="px-3 py-2.5 text-xs text-muted">
+                <td className="px-4 py-3 text-xs text-muted">
                   {r.is_favorite ? "★ 收藏 · " : ""}
                   {r.is_used ? "已使用" : "未使用"}
                 </td>
-                <td className="px-3 py-2.5 tabular-nums text-muted">{r.click_count}</td>
-                <td className="px-3 py-2.5">
+                <td className="px-4 py-3 tabular-nums text-muted">{r.click_count}</td>
+                <td className="px-4 py-3">
                   <div className="flex items-center justify-end gap-1">
                     <Link
                       href={`/admin/rewards/${r.id}/edit`}

@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { getRewardsWithTags, getAllTags } from "@/lib/queries";
+import { createClient } from "@/lib/supabase/server";
 import { RewardExplorer } from "@/components/reward-explorer";
 import { RewardListSkeleton } from "@/components/reward-list-skeleton";
 
@@ -14,8 +15,14 @@ export default async function HomePage() {
 }
 
 async function HomeContent() {
-  const [rewards, tags] = await Promise.all([getRewardsWithTags(), getAllTags()]);
-  return <RewardExplorer initialRewards={rewards} allTags={tags} />;
+  const supabase = await createClient();
+  const [rewards, tags, userResult] = await Promise.all([
+    getRewardsWithTags(),
+    getAllTags(),
+    supabase.auth.getUser(),
+  ]);
+  const isAdmin = Boolean(userResult.data.user);
+  return <RewardExplorer initialRewards={rewards} allTags={tags} isAdmin={isAdmin} />;
 }
 
 function HomeSkeleton() {

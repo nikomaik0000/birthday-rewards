@@ -38,3 +38,13 @@ export const loginSchema = z.object({
   email: z.string().trim().email("請輸入正確的 Email"),
   password: z.string().min(6, "密碼至少 6 碼"),
 });
+
+// v2: 資料回報 — general visitors can no longer edit rewards directly,
+// so this is the only "write" left for them.
+export const reportSchema = z.object({
+  reward_id: z.string().uuid(),
+  message: z.string().trim().min(1, "請描述問題內容").max(1000),
+  contact: z.string().trim().email("請輸入正確的 Email").optional().or(z.literal("")),
+});
+
+export type ReportFormValues = z.infer<typeof reportSchema>;

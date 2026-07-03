@@ -7,6 +7,7 @@ import { StoreLogo } from "@/components/store-logo";
 import { CategoryBadge } from "@/components/tag-badge";
 import { StarRating } from "@/components/star-rating";
 import { ExpiryBadge } from "@/components/expiry-badge";
+import { ReportDialog } from "@/components/report-dialog";
 import type { RewardWithTags } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -18,7 +19,8 @@ export function RewardTable({
 }: {
   rewards: RewardWithTags[];
   onToggleFavorite: (id: string, next: boolean) => void;
-  onToggleUsed: (id: string, next: boolean) => void;
+  // v2: 已使用 is admin-only now — omit this prop to render a read-only badge.
+  onToggleUsed?: (id: string, next: boolean) => void;
   onVisit: (id: string) => void;
 }) {
   const columns: ColumnDef<RewardWithTags>[] = [
@@ -95,23 +97,33 @@ export function RewardTable({
       header: "使用",
       cell: ({ row }) => {
         const r = row.original;
+        const statusClasses = cn(
+          "flex items-center gap-1 rounded-pill border px-2 py-0.5 text-xs",
+          r.is_used
+            ? "border-accent-green bg-accent-green/15 text-accent-green"
+            : "border-border text-muted dark:border-border-dark"
+        );
+        if (!onToggleUsed) {
+          // Read-only for general visitors (v2: no public write access)
+          return (
+            <span className={statusClasses}>
+              <Check className="h-3 w-3" />
+              {r.is_used ? "已兌換" : "未使用"}
+            </span>
+          );
+        }
         return (
-          <button
-            type="button"
-            onClick={() => onToggleUsed(r.id, !r.is_used)}
-            aria-pressed={r.is_used}
-            className={cn(
-              "flex items-center gap-1 rounded-pill border px-2 py-0.5 text-xs",
-              r.is_used
-                ? "border-accent-green bg-accent-green/15 text-accent-green"
-                : "border-border text-muted dark:border-border-dark"
-            )}
-          >
+          <button type="button" onClick={() => onToggleUsed(r.id, !r.is_used)} aria-pressed={r.is_used} className={statusClasses}>
             <Check className="h-3 w-3" />
             {r.is_used ? "已兌換" : "未使用"}
           </button>
         );
       },
+    },
+    {
+      id: "report",
+      header: "",
+      cell: ({ row }) => <ReportDialog rewardId={row.original.id} storeName={row.original.store_name} />,
     },
     {
       id: "link",
@@ -144,7 +156,7 @@ export function RewardTable({
           {table.getHeaderGroups().map((hg) => (
             <tr key={hg.id} className="border-b border-border bg-bg/60 dark:border-border-dark dark:bg-bg-dark/60">
               {hg.headers.map((header) => (
-                <th key={header.id} className="px-3 py-2.5 text-left font-medium text-muted">
+                <th key={header.id} className="px-4 py-3 text-left font-medium text-muted">
                   {flexRender(header.column.columnDef.header, header.getContext())}
                 </th>
               ))}
@@ -161,7 +173,7 @@ export function RewardTable({
               )}
             >
               {row.getVisibleCells().map((cell) => (
-                <td key={cell.id} className="px-3 py-2.5 align-middle">
+                <td key={cell.id} className="px-4 py-3 align-middle">
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </td>
               ))}
