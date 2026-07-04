@@ -10,7 +10,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { CategoryBadge } from "@/components/tag-badge";
 import { StarRating } from "@/components/star-rating";
-import { StoreLogo } from "@/components/store-logo";
 import { bulkDeleteRewards, bulkUpdateCategory, deleteReward } from "@/app/actions/rewards";
 import { CATEGORIES } from "@/lib/constants";
 import type { RewardWithTags, Category } from "@/lib/types";
@@ -131,7 +130,6 @@ export function AdminTable({ rewards }: { rewards: RewardWithTags[] }) {
               <th className="px-4 py-3 text-left font-medium text-muted">類別</th>
               <th className="px-4 py-3 text-left font-medium text-muted">分數</th>
               <th className="px-4 py-3 text-left font-medium text-muted">狀態</th>
-              <th className="px-4 py-3 text-left font-medium text-muted">點擊</th>
               <th className="w-20 px-4 py-3" />
             </tr>
           </thead>
@@ -142,10 +140,7 @@ export function AdminTable({ rewards }: { rewards: RewardWithTags[] }) {
                   <Checkbox checked={selected.has(r.id)} onCheckedChange={() => toggleOne(r.id)} aria-label={`選取 ${r.store_name}`} />
                 </td>
                 <td className="px-4 py-3">
-                  <div className="flex items-center gap-2.5">
-                    <StoreLogo name={r.store_name} logoUrl={r.logo_url} size={24} />
-                    <span className="font-medium">{r.store_name}</span>
-                  </div>
+                  <span className="font-medium">{r.store_name}</span>
                 </td>
                 <td className="px-4 py-3">
                   <CategoryBadge category={r.category} />
@@ -156,7 +151,6 @@ export function AdminTable({ rewards }: { rewards: RewardWithTags[] }) {
                 <td className="px-4 py-3 text-xs text-muted">
                   {r.is_favorite ? "★ 收藏" : "—"}
                 </td>
-                <td className="px-4 py-3 tabular-nums text-muted">{r.click_count}</td>
                 <td className="px-4 py-3">
                   <div className="flex items-center justify-end gap-1">
                     <Link

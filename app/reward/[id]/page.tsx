@@ -12,7 +12,6 @@ import { formatDate } from "@/lib/utils";
 import { NotesEditor } from "@/components/notes-editor";
 import { VisitTracker } from "@/components/visit-tracker";
 import { FavoriteUsedControls } from "@/components/favorite-used-controls";
-import { ReportDialog } from "@/components/report-dialog";
 
 export async function generateMetadata({
   params,
@@ -65,7 +64,6 @@ export default async function RewardDetailPage({
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-1">
-            <ReportDialog rewardId={reward.id} storeName={reward.store_name} />
             <FavoriteUsedControls reward={reward} isAdmin={isAdmin} />
           </div>
         </div>
@@ -85,12 +83,10 @@ export default async function RewardDetailPage({
         <div className="mt-5 grid grid-cols-2 gap-4 border-t border-border pt-4 text-sm">
           <InfoRow label="分數" value={<StarRating score={reward.score} />} />
           <InfoRow label="日期分類" value={reward.date_category} />
-          <InfoRow label="點擊次數" value={reward.click_count} />
-          <InfoRow label="最後更新" value={formatDate(reward.updated_at)} />
         </div>
 
         {reward.official_url && (
-          <VisitTracker rewardId={reward.id} url={reward.official_url} storeName={reward.store_name} />
+          <VisitTracker url={reward.official_url} storeName={reward.store_name} />
         )}
       </div>
 

@@ -1,0 +1,694 @@
+diff --git a/app/admin/page.tsx b/app/admin/page.tsx
+index 58206f4..7172dd7 100644
+--- a/app/admin/page.tsx
++++ b/app/admin/page.tsx
+@@ -1,9 +1,7 @@
+ import Link from "next/link";
+ import { Plus, LogOut } from "lucide-react";
+ import { getRewardsWithTags } from "@/lib/queries";
+-import { getPendingReports } from "@/app/actions/reports";
+ import { AdminTable } from "@/components/admin-table";
+-import { ReportsPanel } from "@/components/admin/reports-panel";
+ import { ImportExportDialog } from "@/components/import-export-dialog";
+ import { Button } from "@/components/ui/button";
+ import { logout } from "@/app/actions/auth";
+@@ -12,7 +10,7 @@ export const metadata = { title: "後台管理" };
+ export const revalidate = 0;
+ 
+ export default async function AdminPage() {
+-  const [rewards, reports] = await Promise.all([getRewardsWithTags(), getPendingReports()]);
++  const rewards = await getRewardsWithTags();
+ 
+   return (
+     <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
+@@ -38,7 +36,6 @@ export default async function AdminPage() {
+         </div>
+       </div>
+ 
+-      <ReportsPanel reports={reports} />
+       <AdminTable rewards={rewards} />
+     </div>
+   );
+diff --git a/app/reward/[id]/page.tsx b/app/reward/[id]/page.tsx
+index 05ae24d..087f12d 100644
+--- a/app/reward/[id]/page.tsx
++++ b/app/reward/[id]/page.tsx
+@@ -12,7 +12,6 @@ import { formatDate } from "@/lib/utils";
+ import { NotesEditor } from "@/components/notes-editor";
+ import { VisitTracker } from "@/components/visit-tracker";
+ import { FavoriteUsedControls } from "@/components/favorite-used-controls";
+-import { ReportDialog } from "@/components/report-dialog";
+ 
+ export async function generateMetadata({
+   params,
+@@ -65,7 +64,6 @@ export default async function RewardDetailPage({
+             </div>
+           </div>
+           <div className="flex shrink-0 items-center gap-1">
+-            <ReportDialog rewardId={reward.id} storeName={reward.store_name} />
+             <FavoriteUsedControls reward={reward} isAdmin={isAdmin} />
+           </div>
+         </div>
+@@ -85,12 +83,10 @@ export default async function RewardDetailPage({
+         <div className="mt-5 grid grid-cols-2 gap-4 border-t border-border pt-4 text-sm">
+           <InfoRow label="分數" value={<StarRating score={reward.score} />} />
+           <InfoRow label="日期分類" value={reward.date_category} />
+-          <InfoRow label="點擊次數" value={reward.click_count} />
+-          <InfoRow label="最後更新" value={formatDate(reward.updated_at)} />
+         </div>
+ 
+         {reward.official_url && (
+-          <VisitTracker rewardId={reward.id} url={reward.official_url} storeName={reward.store_name} />
++          <VisitTracker url={reward.official_url} storeName={reward.store_name} />
+         )}
+       </div>
+ 
+diff --git a/components/admin-table.tsx b/components/admin-table.tsx
+index 894083a..4aa1e3b 100644
+--- a/components/admin-table.tsx
++++ b/components/admin-table.tsx
+@@ -10,7 +10,6 @@ import { Input } from "@/components/ui/input";
+ import { Button } from "@/components/ui/button";
+ import { CategoryBadge } from "@/components/tag-badge";
+ import { StarRating } from "@/components/star-rating";
+-import { StoreLogo } from "@/components/store-logo";
+ import { bulkDeleteRewards, bulkUpdateCategory, deleteReward } from "@/app/actions/rewards";
+ import { CATEGORIES } from "@/lib/constants";
+ import type { RewardWithTags, Category } from "@/lib/types";
+@@ -131,7 +130,6 @@ export function AdminTable({ rewards }: { rewards: RewardWithTags[] }) {
+               <th className="px-4 py-3 text-left font-medium text-muted">類別</th>
+               <th className="px-4 py-3 text-left font-medium text-muted">分數</th>
+               <th className="px-4 py-3 text-left font-medium text-muted">狀態</th>
+-              <th className="px-4 py-3 text-left font-medium text-muted">點擊</th>
+               <th className="w-20 px-4 py-3" />
+             </tr>
+           </thead>
+@@ -142,10 +140,7 @@ export function AdminTable({ rewards }: { rewards: RewardWithTags[] }) {
+                   <Checkbox checked={selected.has(r.id)} onCheckedChange={() => toggleOne(r.id)} aria-label={`選取 ${r.store_name}`} />
+                 </td>
+                 <td className="px-4 py-3">
+-                  <div className="flex items-center gap-2.5">
+-                    <StoreLogo name={r.store_name} logoUrl={r.logo_url} size={24} />
+-                    <span className="font-medium">{r.store_name}</span>
+-                  </div>
++                  <span className="font-medium">{r.store_name}</span>
+                 </td>
+                 <td className="px-4 py-3">
+                   <CategoryBadge category={r.category} />
+@@ -156,7 +151,6 @@ export function AdminTable({ rewards }: { rewards: RewardWithTags[] }) {
+                 <td className="px-4 py-3 text-xs text-muted">
+                   {r.is_favorite ? "★ 收藏" : "—"}
+                 </td>
+-                <td className="px-4 py-3 tabular-nums text-muted">{r.click_count}</td>
+                 <td className="px-4 py-3">
+                   <div className="flex items-center justify-end gap-1">
+                     <Link
+diff --git a/components/admin/reports-panel.tsx b/components/admin/reports-panel.tsx
+deleted file mode 100644
+index d088c6e..0000000
+--- a/components/admin/reports-panel.tsx
++++ /dev/null
+@@ -1,98 +0,0 @@
+-"use client";
+-
+-import { useState } from "react";
+-import { useRouter } from "next/navigation";
+-import Link from "next/link";
+-import { Flag, Check, Trash2 } from "lucide-react";
+-import { toast } from "sonner";
+-import { Button } from "@/components/ui/button";
+-import { resolveReport, deleteReport } from "@/app/actions/reports";
+-import { formatDate } from "@/lib/utils";
+-import type { ReportRow } from "@/lib/database.types";
+-
+-type ReportWithStoreName = ReportRow & { store_name: string };
+-
+-/**
+- * v2: shows the queue fed by the front-end "資料回報" button. General
+- * visitors can only submit into this queue — resolving/deleting happens
+- * here, admin-only (also enforced by RLS on reward_reports).
+- */
+-export function ReportsPanel({ reports }: { reports: ReportWithStoreName[] }) {
+-  const router = useRouter();
+-  const [busyId, setBusyId] = useState<string | null>(null);
+-
+-  if (!reports.length) return null;
+-
+-  async function handleResolve(id: string) {
+-    setBusyId(id);
+-    try {
+-      await resolveReport(id);
+-      toast.success("已標記為已處理");
+-      router.refresh();
+-    } catch {
+-      toast.error("操作失敗");
+-    } finally {
+-      setBusyId(null);
+-    }
+-  }
+-
+-  async function handleDelete(id: string) {
+-    setBusyId(id);
+-    try {
+-      await deleteReport(id);
+-      toast.success("已刪除回報");
+-      router.refresh();
+-    } catch {
+-      toast.error("操作失敗");
+-    } finally {
+-      setBusyId(null);
+-    }
+-  }
+-
+-  return (
+-    <div className="mb-6 rounded-card border border-border bg-surface p-5">
+-      <h2 className="mb-3 flex items-center gap-1.5 text-sm font-medium">
+-        <Flag className="h-4 w-4" />
+-        資料回報（{reports.length} 筆待處理）
+-      </h2>
+-      <ul className="stack-8">
+-        {reports.map((r) => (
+-          <li key={r.id} className="flex items-start justify-between gap-3 rounded-lg border border-border p-3 text-sm">
+-            <div className="min-w-0">
+-              <Link href={`/reward/${r.reward_id}`} className="font-medium hover:underline">
+-                {r.store_name}
+-              </Link>
+-              <p className="mt-1 text-ink/80">{r.message}</p>
+-              <p className="mt-1 text-xs text-muted">
+-                {formatDate(r.created_at)}
+-                {r.contact ? ` · ${r.contact}` : ""}
+-              </p>
+-            </div>
+-            <div className="flex shrink-0 items-center gap-1">
+-              <Button
+-                variant="ghost"
+-                size="icon"
+-                disabled={busyId === r.id}
+-                onClick={() => handleResolve(r.id)}
+-                aria-label="標記為已處理"
+-                title="標記為已處理"
+-              >
+-                <Check className="h-4 w-4" />
+-              </Button>
+-              <Button
+-                variant="ghost"
+-                size="icon"
+-                disabled={busyId === r.id}
+-                onClick={() => handleDelete(r.id)}
+-                aria-label="刪除回報"
+-                title="刪除回報"
+-              >
+-                <Trash2 className="h-4 w-4" />
+-              </Button>
+-            </div>
+-          </li>
+-        ))}
+-      </ul>
+-    </div>
+-  );
+-}
+diff --git a/components/dashboard-stats.tsx b/components/dashboard-stats.tsx
+index c833581..4ae3563 100644
+--- a/components/dashboard-stats.tsx
++++ b/components/dashboard-stats.tsx
+@@ -11,7 +11,6 @@ export function DashboardStatsPanel({ stats }: { stats: DashboardStats }) {
+     { label: "未使用", value: stats.unusedCount },
+     { label: "平均分數", value: <StarRating score={Math.round(stats.averageScore)} /> },
+     { label: "最高分店家", value: stats.topScoreStore ?? "—" },
+-    { label: "最多點擊", value: stats.topClickedStore ?? "—" },
+   ];
+ 
+   return (
+diff --git a/components/report-dialog.tsx b/components/report-dialog.tsx
+deleted file mode 100644
+index 302cfe5..0000000
+--- a/components/report-dialog.tsx
++++ /dev/null
+@@ -1,75 +0,0 @@
+-"use client";
+-
+-import { useState } from "react";
+-import { Flag } from "lucide-react";
+-import { toast } from "sonner";
+-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+-import { Button } from "@/components/ui/button";
+-import { Input, Textarea } from "@/components/ui/input";
+-import { submitReport } from "@/app/actions/reports";
+-
+-/**
+- * v2: general visitors can no longer edit reward data directly. This is
+- * the replacement — a simple "something's wrong" report that lands in the
+- * admin's report queue instead of writing to the reward itself.
+- */
+-export function ReportDialog({ rewardId, storeName }: { rewardId: string; storeName: string }) {
+-  const [open, setOpen] = useState(false);
+-  const [message, setMessage] = useState("");
+-  const [contact, setContact] = useState("");
+-  const [submitting, setSubmitting] = useState(false);
+-
+-  async function handleSubmit(e: React.FormEvent) {
+-    e.preventDefault();
+-    if (!message.trim()) return;
+-    setSubmitting(true);
+-    try {
+-      await submitReport({ reward_id: rewardId, message: message.trim(), contact: contact.trim() });
+-      toast.success("感謝回報，我們會盡快確認");
+-      setOpen(false);
+-      setMessage("");
+-      setContact("");
+-    } catch {
+-      toast.error("回報失敗，請稍後再試");
+-    } finally {
+-      setSubmitting(false);
+-    }
+-  }
+-
+-  return (
+-    <Dialog open={open} onOpenChange={setOpen}>
+-      <DialogTrigger asChild>
+-        <button
+-          type="button"
+-          onClick={(e) => e.stopPropagation()}
+-          aria-label={`回報 ${storeName} 資料問題`}
+-          title="回報資料問題"
+-          className="relative z-10 rounded-full p-1.5 text-muted hover:bg-bg"
+-        >
+-          <Flag className="h-3.5 w-3.5" />
+-        </button>
+-      </DialogTrigger>
+-      <DialogContent title={`回報「${storeName}」的資料問題`}>
+-        <form onSubmit={handleSubmit} className="stack-16">
+-          <div>
+-            <label className="mb-1.5 block text-xs font-medium text-muted">問題描述</label>
+-            <Textarea
+-              value={message}
+-              onChange={(e) => setMessage(e.target.value)}
+-              rows={3}
+-              placeholder="例如：優惠已過期、連結失效、內容不正確..."
+-              required
+-            />
+-          </div>
+-          <div>
+-            <label className="mb-1.5 block text-xs font-medium text-muted">聯絡 Email（選填，方便我們回覆）</label>
+-            <Input value={contact} onChange={(e) => setContact(e.target.value)} type="email" placeholder="you@example.com" />
+-          </div>
+-          <Button type="submit" disabled={submitting} className="w-full">
+-            {submitting ? "送出中..." : "送出回報"}
+-          </Button>
+-        </form>
+-      </DialogContent>
+-    </Dialog>
+-  );
+-}
+diff --git a/components/reward-card.tsx b/components/reward-card.tsx
+index 7b86e9d..dff81d4 100644
+--- a/components/reward-card.tsx
++++ b/components/reward-card.tsx
+@@ -1,12 +1,10 @@
+ "use client";
+ 
+ import Link from "next/link";
+-import { Heart, Check, ExternalLink, MousePointerClick } from "lucide-react";
+-import { StoreLogo } from "@/components/store-logo";
++import { Heart, Check, ExternalLink } from "lucide-react";
+ import { CategoryBadge, TagBadge } from "@/components/tag-badge";
+ import { StarRating } from "@/components/star-rating";
+ import { ExpiryBadge } from "@/components/expiry-badge";
+-import { ReportDialog } from "@/components/report-dialog";
+ import type { RewardWithTags } from "@/lib/types";
+ import { cn } from "@/lib/utils";
+ 
+@@ -14,14 +12,12 @@ export function RewardCard({
+   reward,
+   onToggleFavorite,
+   onToggleUsed,
+-  onVisit,
+ }: {
+   reward: RewardWithTags;
+   onToggleFavorite: (id: string, next: boolean) => void;
+   // v2: 已使用 is now admin-only. When this is omitted (general visitor),
+   // the card shows a plain read-only status instead of a clickable toggle.
+   onToggleUsed?: (id: string, next: boolean) => void;
+-  onVisit: (id: string) => void;
+ }) {
+   return (
+     <div
+@@ -34,44 +30,35 @@ export function RewardCard({
+       )}
+     >
+       <div className="flex items-start justify-between gap-2">
+-        <div className="flex items-center gap-3 min-w-0">
+-          <StoreLogo name={reward.store_name} logoUrl={reward.logo_url} size={36} />
+-          <div className="min-w-0">
+-            {reward.official_url ? (
+-              <a
+-                href={reward.official_url}
+-                target="_blank"
+-                rel="noopener noreferrer"
+-                onClick={() => onVisit(reward.id)}
+-                className="relative z-10 flex items-center gap-1 truncate font-medium text-ink hover:underline"
+-              >
+-                <span className="truncate">{reward.store_name}</span>
+-                <ExternalLink className="h-3 w-3 shrink-0 text-muted" />
+-              </a>
+-            ) : (
+-              <span className="truncate font-medium">{reward.store_name}</span>
+-            )}
+-            <div className="mt-1.5 flex items-center gap-2">
+-              <CategoryBadge category={reward.category} />
+-              <ExpiryBadge expiryDate={reward.expiry_date} />
+-            </div>
++        <div className="min-w-0 flex-1">
++          {reward.official_url ? (
++            <a
++              href={reward.official_url}
++              target="_blank"
++              rel="noopener noreferrer"
++              className="relative z-10 flex items-center gap-1 truncate font-medium text-ink hover:underline"
++            >
++              <span className="truncate">{reward.store_name}</span>
++              <ExternalLink className="h-3 w-3 shrink-0 text-muted" />
++            </a>
++          ) : (
++            <span className="truncate font-medium">{reward.store_name}</span>
++          )}
++          <div className="mt-1.5 flex items-center gap-2">
++            <CategoryBadge category={reward.category} />
++            <ExpiryBadge expiryDate={reward.expiry_date} />
+           </div>
+         </div>
+ 
+-        {/* Icon-button row: favorite + report, both sized/styled the same
+-            (h-4 w-4 icon in a p-1.5 hit target) for visual consistency. */}
+-        <div className="flex shrink-0 items-center gap-1">
+-          <ReportDialog rewardId={reward.id} storeName={reward.store_name} />
+-          <button
+-            type="button"
+-            onClick={() => onToggleFavorite(reward.id, !reward.is_favorite)}
+-            aria-label={reward.is_favorite ? "取消收藏" : "加入收藏"}
+-            aria-pressed={reward.is_favorite}
+-            className="relative z-10 rounded-full p-1.5 text-muted hover:bg-bg"
+-          >
+-            <Heart className={cn("h-4 w-4", reward.is_favorite && "fill-accent-coffee text-accent-coffee")} />
+-          </button>
+-        </div>
++        <button
++          type="button"
++          onClick={() => onToggleFavorite(reward.id, !reward.is_favorite)}
++          aria-label={reward.is_favorite ? "取消收藏" : "加入收藏"}
++          aria-pressed={reward.is_favorite}
++          className="relative z-10 shrink-0 rounded-full p-1.5 text-muted hover:bg-bg"
++        >
++          <Heart className={cn("h-4 w-4", reward.is_favorite && "fill-accent-coffee text-accent-coffee")} />
++        </button>
+       </div>
+ 
+       <p className="line-clamp-3 text-sm text-ink/90">{reward.content}</p>
+@@ -86,41 +73,35 @@ export function RewardCard({
+ 
+       <div className="mt-auto flex items-center justify-between pt-1">
+         <StarRating score={reward.score} />
+-        <div className="flex items-center gap-3">
+-          <span className="flex items-center gap-1 text-xs text-muted">
+-            <MousePointerClick className="h-3.5 w-3.5" />
+-            {reward.click_count}
++        {onToggleUsed ? (
++          <button
++            type="button"
++            onClick={() => onToggleUsed(reward.id, !reward.is_used)}
++            aria-pressed={reward.is_used}
++            className={cn(
++              "relative z-10 flex items-center gap-1 rounded-pill border px-2.5 py-1 text-xs font-medium transition-colors",
++              reward.is_used
++                ? "border-accent-green bg-accent-green/15 text-accent-green"
++                : "border-border text-muted"
++            )}
++          >
++            <Check className="h-3 w-3" />
++            {reward.is_used ? "已兌換" : "未使用"}
++          </button>
++        ) : (
++          // Read-only status for general visitors (v2: no public write access)
++          <span
++            className={cn(
++              "flex items-center gap-1 rounded-pill border px-2.5 py-1 text-xs font-medium",
++              reward.is_used
++                ? "border-accent-green bg-accent-green/15 text-accent-green"
++                : "border-border text-muted"
++            )}
++          >
++            <Check className="h-3 w-3" />
++            {reward.is_used ? "已兌換" : "未使用"}
+           </span>
+-          {onToggleUsed ? (
+-            <button
+-              type="button"
+-              onClick={() => onToggleUsed(reward.id, !reward.is_used)}
+-              aria-pressed={reward.is_used}
+-              className={cn(
+-                "relative z-10 flex items-center gap-1 rounded-pill border px-2.5 py-1 text-xs font-medium transition-colors",
+-                reward.is_used
+-                  ? "border-accent-green bg-accent-green/15 text-accent-green"
+-                  : "border-border text-muted"
+-              )}
+-            >
+-              <Check className="h-3 w-3" />
+-              {reward.is_used ? "已兌換" : "未使用"}
+-            </button>
+-          ) : (
+-            // Read-only status for general visitors (v2: no public write access)
+-            <span
+-              className={cn(
+-                "flex items-center gap-1 rounded-pill border px-2.5 py-1 text-xs font-medium",
+-                reward.is_used
+-                  ? "border-accent-green bg-accent-green/15 text-accent-green"
+-                  : "border-border text-muted"
+-              )}
+-            >
+-              <Check className="h-3 w-3" />
+-              {reward.is_used ? "已兌換" : "未使用"}
+-            </span>
+-          )}
+-        </div>
++        )}
+       </div>
+ 
+       <Link
+diff --git a/components/reward-explorer.tsx b/components/reward-explorer.tsx
+index 09d0fbf..40d5ff9 100644
+--- a/components/reward-explorer.tsx
++++ b/components/reward-explorer.tsx
+@@ -17,7 +17,7 @@ import { useViewMode } from "@/hooks/use-view-mode";
+ import { useLocalFavorites, useLocalUsedStatus } from "@/hooks/use-local-reward-flags";
+ import { DEFAULT_FILTERS, type RewardFilters, type RewardWithTags, type SortKey } from "@/lib/types";
+ import { computeDashboardStats } from "@/lib/stats";
+-import { toggleFavorite, trackClick } from "@/app/actions/rewards";
++import { toggleFavorite } from "@/app/actions/rewards";
+ import type { TagRow } from "@/lib/database.types";
+ import { getExpiryInfo } from "@/lib/utils";
+ 
+@@ -101,14 +101,6 @@ export function RewardExplorer({
+         });
+       case "score_desc":
+         return list.sort((a, b) => b.score - a.score);
+-      case "clicks_desc":
+-        return list.sort((a, b) => b.click_count - a.click_count);
+-      case "store_name_asc":
+-        return list.sort((a, b) => a.store_name.localeCompare(b.store_name, "zh-Hant"));
+-      case "created_desc":
+-        return list.sort((a, b) => b.created_at.localeCompare(a.created_at));
+-      case "updated_desc":
+-        return list.sort((a, b) => b.updated_at.localeCompare(a.updated_at));
+       default:
+         return list;
+     }
+@@ -155,11 +147,6 @@ export function RewardExplorer({
+     [localUsed]
+   );
+ 
+-  const handleVisit = useCallback((id: string) => {
+-    setRewards((prev) => prev.map((r) => (r.id === id ? { ...r, click_count: r.click_count + 1 } : r)));
+-    trackClick(id).catch(() => {});
+-  }, []);
+-
+   const activeFilterCount =
+     filters.categories.length +
+     filters.dateCategories.length +
+@@ -220,7 +207,6 @@ export function RewardExplorer({
+           rewards={visible}
+           onToggleFavorite={handleToggleFavorite}
+           onToggleUsed={handleToggleUsed}
+-          onVisit={handleVisit}
+         />
+       ) : (
+         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+@@ -230,7 +216,6 @@ export function RewardExplorer({
+               reward={r}
+               onToggleFavorite={handleToggleFavorite}
+               onToggleUsed={handleToggleUsed}
+-              onVisit={handleVisit}
+             />
+           ))}
+         </div>
+diff --git a/components/reward-table.tsx b/components/reward-table.tsx
+index 2d12ec2..c049ff5 100644
+--- a/components/reward-table.tsx
++++ b/components/reward-table.tsx
+@@ -3,11 +3,9 @@
+ import Link from "next/link";
+ import { useReactTable, getCoreRowModel, flexRender, type ColumnDef } from "@tanstack/react-table";
+ import { Heart, Check, ExternalLink } from "lucide-react";
+-import { StoreLogo } from "@/components/store-logo";
+ import { CategoryBadge } from "@/components/tag-badge";
+ import { StarRating } from "@/components/star-rating";
+ import { ExpiryBadge } from "@/components/expiry-badge";
+-import { ReportDialog } from "@/components/report-dialog";
+ import type { RewardWithTags } from "@/lib/types";
+ import { cn } from "@/lib/utils";
+ 
+@@ -15,13 +13,11 @@ export function RewardTable({
+   rewards,
+   onToggleFavorite,
+   onToggleUsed,
+-  onVisit,
+ }: {
+   rewards: RewardWithTags[];
+   onToggleFavorite: (id: string, next: boolean) => void;
+   // v2: 已使用 is admin-only now — omit this prop to render a read-only badge.
+   onToggleUsed?: (id: string, next: boolean) => void;
+-  onVisit: (id: string) => void;
+ }) {
+   const columns: ColumnDef<RewardWithTags>[] = [
+     {
+@@ -31,7 +27,6 @@ export function RewardTable({
+         const r = row.original;
+         return (
+           <Link href={`/reward/${r.id}`} className="flex min-w-0 items-center gap-2.5">
+-            <StoreLogo name={r.store_name} logoUrl={r.logo_url} size={26} />
+             <span className="truncate font-medium">{r.store_name}</span>
+           </Link>
+         );
+@@ -69,11 +64,6 @@ export function RewardTable({
+         return info ? <ExpiryBadge expiryDate={info} /> : <span className="text-muted">—</span>;
+       },
+     },
+-    {
+-      id: "clicks",
+-      header: "點擊",
+-      cell: ({ row }) => <span className="tabular-nums text-muted">{row.original.click_count}</span>,
+-    },
+     {
+       id: "favorite",
+       header: "收藏",
+@@ -120,11 +110,6 @@ export function RewardTable({
+         );
+       },
+     },
+-    {
+-      id: "report",
+-      header: "",
+-      cell: ({ row }) => <ReportDialog rewardId={row.original.id} storeName={row.original.store_name} />,
+-    },
+     {
+       id: "link",
+       header: "",
+@@ -136,7 +121,6 @@ export function RewardTable({
+             href={r.official_url}
+             target="_blank"
+             rel="noopener noreferrer"
+-            onClick={() => onVisit(r.id)}
+             aria-label={`前往 ${r.store_name} 官網`}
+             className="rounded-full p-1 text-muted hover:bg-bg"
+           >
+diff --git a/components/visit-tracker.tsx b/components/visit-tracker.tsx
+index e16bf2e..06975bd 100644
+--- a/components/visit-tracker.tsx
++++ b/components/visit-tracker.tsx
+@@ -2,19 +2,16 @@
+ 
+ import { ExternalLink } from "lucide-react";
+ import { Button } from "@/components/ui/button";
+-import { trackClick } from "@/app/actions/rewards";
+ 
+ export function VisitTracker({
+-  rewardId,
+   url,
+   storeName,
+ }: {
+-  rewardId: string;
+   url: string;
+   storeName: string;
+ }) {
+   return (
+-    <a href={url} target="_blank" rel="noopener noreferrer" onClick={() => trackClick(rewardId)}>
++    <a href={url} target="_blank" rel="noopener noreferrer">
+       <Button className="mt-5 w-full gap-1.5">
+         前往 {storeName} 官方優惠頁
+         <ExternalLink className="h-4 w-4" />
+diff --git a/lib/constants.ts b/lib/constants.ts
+index 400477b..2fdfe29 100644
+--- a/lib/constants.ts
++++ b/lib/constants.ts
+@@ -63,8 +63,4 @@ export const SUGGESTED_TAGS = [
+ export const SORT_OPTIONS: { value: string; label: string }[] = [
+   { value: "expiry_asc", label: "截止日期：近 → 遠" },
+   { value: "score_desc", label: "分數：高 → 低" },
+-  { value: "clicks_desc", label: "熱門度：高 → 低" },
+-  { value: "store_name_asc", label: "店家名稱：A ~ Z" },
+-  { value: "created_desc", label: "建立時間：新 → 舊" },
+-  { value: "updated_desc", label: "更新時間：新 → 舊" },
+ ];
+diff --git a/lib/stats.ts b/lib/stats.ts
+index 5c771b9..c8b3a54 100644
+--- a/lib/stats.ts
++++ b/lib/stats.ts
+@@ -9,7 +9,6 @@ export function computeDashboardStats(rewards: RewardWithTags[]): DashboardStats
+ 
+   let scoreSum = 0;
+   let topScore = { name: null as string | null, score: -1 };
+-  let topClicks = { name: null as string | null, clicks: -1 };
+   let favoriteCount = 0;
+   let usedCount = 0;
+ 
+@@ -22,7 +21,6 @@ export function computeDashboardStats(rewards: RewardWithTags[]): DashboardStats
+     if (r.is_favorite) favoriteCount += 1;
+     if (r.is_used) usedCount += 1;
+     if (r.score > topScore.score) topScore = { name: r.store_name, score: r.score };
+-    if (r.click_count > topClicks.clicks) topClicks = { name: r.store_name, clicks: r.click_count };
+   }
+ 
+   return {
+@@ -33,7 +31,6 @@ export function computeDashboardStats(rewards: RewardWithTags[]): DashboardStats
+     unusedCount: rewards.length - usedCount,
+     averageScore: rewards.length ? Number((scoreSum / rewards.length).toFixed(1)) : 0,
+     topScoreStore: topScore.name,
+-    topClickedStore: topClicks.name,
+     categoryCounts,
+   };
+ }
+diff --git a/lib/types.ts b/lib/types.ts
+index dd80f40..401d4d4 100644
+--- a/lib/types.ts
++++ b/lib/types.ts
+@@ -8,13 +8,7 @@ export interface RewardWithTags extends RewardRow {
+ 
+ export type ViewMode = "table" | "card";
+ 
+-export type SortKey =
+-  | "expiry_asc"
+-  | "score_desc"
+-  | "clicks_desc"
+-  | "store_name_asc"
+-  | "created_desc"
+-  | "updated_desc";
++export type SortKey = "expiry_asc" | "score_desc";
+ 
+ export interface RewardFilters {
+   query: string;
+@@ -46,6 +40,5 @@ export interface DashboardStats {
+   unusedCount: number;
+   averageScore: number;
+   topScoreStore: string | null;
+-  topClickedStore: string | null;
+   categoryCounts: Record<Category, number>;
+ }

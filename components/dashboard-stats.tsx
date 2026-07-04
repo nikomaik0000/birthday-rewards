@@ -11,7 +11,6 @@ export function DashboardStatsPanel({ stats }: { stats: DashboardStats }) {
     { label: "未使用", value: stats.unusedCount },
     { label: "平均分數", value: <StarRating score={Math.round(stats.averageScore)} /> },
     { label: "最高分店家", value: stats.topScoreStore ?? "—" },
-    { label: "最多點擊", value: stats.topClickedStore ?? "—" },
   ];
 
   return (

@@ -17,7 +17,7 @@ import { useViewMode } from "@/hooks/use-view-mode";
 import { useLocalFavorites, useLocalUsedStatus } from "@/hooks/use-local-reward-flags";
 import { DEFAULT_FILTERS, type RewardFilters, type RewardWithTags, type SortKey } from "@/lib/types";
 import { computeDashboardStats } from "@/lib/stats";
-import { toggleFavorite, trackClick } from "@/app/actions/rewards";
+import { toggleFavorite } from "@/app/actions/rewards";
 import type { TagRow } from "@/lib/database.types";
 import { getExpiryInfo } from "@/lib/utils";
 
@@ -101,14 +101,6 @@ export function RewardExplorer({
         });
       case "score_desc":
         return list.sort((a, b) => b.score - a.score);
-      case "clicks_desc":
-        return list.sort((a, b) => b.click_count - a.click_count);
-      case "store_name_asc":
-        return list.sort((a, b) => a.store_name.localeCompare(b.store_name, "zh-Hant"));
-      case "created_desc":
-        return list.sort((a, b) => b.created_at.localeCompare(a.created_at));
-      case "updated_desc":
-        return list.sort((a, b) => b.updated_at.localeCompare(a.updated_at));
       default:
         return list;
     }
@@ -154,11 +146,6 @@ export function RewardExplorer({
     },
     [localUsed]
   );
-
-  const handleVisit = useCallback((id: string) => {
-    setRewards((prev) => prev.map((r) => (r.id === id ? { ...r, click_count: r.click_count + 1 } : r)));
-    trackClick(id).catch(() => {});
-  }, []);
 
   const activeFilterCount =
     filters.categories.length +
@@ -220,7 +207,6 @@ export function RewardExplorer({
           rewards={visible}
           onToggleFavorite={handleToggleFavorite}
           onToggleUsed={handleToggleUsed}
-          onVisit={handleVisit}
         />
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -230,7 +216,6 @@ export function RewardExplorer({
               reward={r}
               onToggleFavorite={handleToggleFavorite}
               onToggleUsed={handleToggleUsed}
-              onVisit={handleVisit}
             />
           ))}
         </div>

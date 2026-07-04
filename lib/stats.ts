@@ -9,7 +9,6 @@ export function computeDashboardStats(rewards: RewardWithTags[]): DashboardStats
 
   let scoreSum = 0;
   let topScore = { name: null as string | null, score: -1 };
-  let topClicks = { name: null as string | null, clicks: -1 };
   let favoriteCount = 0;
   let usedCount = 0;
 
@@ -22,7 +21,6 @@ export function computeDashboardStats(rewards: RewardWithTags[]): DashboardStats
     if (r.is_favorite) favoriteCount += 1;
     if (r.is_used) usedCount += 1;
     if (r.score > topScore.score) topScore = { name: r.store_name, score: r.score };
-    if (r.click_count > topClicks.clicks) topClicks = { name: r.store_name, clicks: r.click_count };
   }
 
   return {
@@ -33,7 +31,6 @@ export function computeDashboardStats(rewards: RewardWithTags[]): DashboardStats
     unusedCount: rewards.length - usedCount,
     averageScore: rewards.length ? Number((scoreSum / rewards.length).toFixed(1)) : 0,
     topScoreStore: topScore.name,
-    topClickedStore: topClicks.name,
     categoryCounts,
   };
 }

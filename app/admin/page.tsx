@@ -1,9 +1,7 @@
 import Link from "next/link";
 import { Plus, LogOut } from "lucide-react";
 import { getRewardsWithTags } from "@/lib/queries";
-import { getPendingReports } from "@/app/actions/reports";
 import { AdminTable } from "@/components/admin-table";
-import { ReportsPanel } from "@/components/admin/reports-panel";
 import { ImportExportDialog } from "@/components/import-export-dialog";
 import { Button } from "@/components/ui/button";
 import { logout } from "@/app/actions/auth";
@@ -12,7 +10,7 @@ export const metadata = { title: "後台管理" };
 export const revalidate = 0;
 
 export default async function AdminPage() {
-  const [rewards, reports] = await Promise.all([getRewardsWithTags(), getPendingReports()]);
+  const rewards = await getRewardsWithTags();
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
@@ -38,7 +36,6 @@ export default async function AdminPage() {
         </div>
       </div>
 
-      <ReportsPanel reports={reports} />
       <AdminTable rewards={rewards} />
     </div>
   );

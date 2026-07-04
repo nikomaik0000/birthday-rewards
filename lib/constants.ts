@@ -63,8 +63,4 @@ export const SUGGESTED_TAGS = [
 export const SORT_OPTIONS: { value: string; label: string }[] = [
   { value: "expiry_asc", label: "截止日期：近 → 遠" },
   { value: "score_desc", label: "分數：高 → 低" },
-  { value: "clicks_desc", label: "熱門度：高 → 低" },
-  { value: "store_name_asc", label: "店家名稱：A ~ Z" },
-  { value: "created_desc", label: "建立時間：新 → 舊" },
-  { value: "updated_desc", label: "更新時間：新 → 舊" },
 ];

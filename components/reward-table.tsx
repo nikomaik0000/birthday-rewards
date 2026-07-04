@@ -3,11 +3,9 @@
 import Link from "next/link";
 import { useReactTable, getCoreRowModel, flexRender, type ColumnDef } from "@tanstack/react-table";
 import { Heart, Check, ExternalLink } from "lucide-react";
-import { StoreLogo } from "@/components/store-logo";
 import { CategoryBadge } from "@/components/tag-badge";
 import { StarRating } from "@/components/star-rating";
 import { ExpiryBadge } from "@/components/expiry-badge";
-import { ReportDialog } from "@/components/report-dialog";
 import type { RewardWithTags } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -15,13 +13,11 @@ export function RewardTable({
   rewards,
   onToggleFavorite,
   onToggleUsed,
-  onVisit,
 }: {
   rewards: RewardWithTags[];
   onToggleFavorite: (id: string, next: boolean) => void;
   // v2: 已使用 is admin-only now — omit this prop to render a read-only badge.
   onToggleUsed?: (id: string, next: boolean) => void;
-  onVisit: (id: string) => void;
 }) {
   const columns: ColumnDef<RewardWithTags>[] = [
     {
@@ -31,7 +27,6 @@ export function RewardTable({
         const r = row.original;
         return (
           <Link href={`/reward/${r.id}`} className="flex min-w-0 items-center gap-2.5">
-            <StoreLogo name={r.store_name} logoUrl={r.logo_url} size={26} />
             <span className="truncate font-medium">{r.store_name}</span>
           </Link>
         );
@@ -68,11 +63,6 @@ export function RewardTable({
         const info = row.original.expiry_date;
         return info ? <ExpiryBadge expiryDate={info} /> : <span className="text-muted">—</span>;
       },
-    },
-    {
-      id: "clicks",
-      header: "點擊",
-      cell: ({ row }) => <span className="tabular-nums text-muted">{row.original.click_count}</span>,
     },
     {
       id: "favorite",
@@ -121,11 +111,6 @@ export function RewardTable({
       },
     },
     {
-      id: "report",
-      header: "",
-      cell: ({ row }) => <ReportDialog rewardId={row.original.id} storeName={row.original.store_name} />,
-    },
-    {
       id: "link",
       header: "",
       cell: ({ row }) => {
@@ -136,7 +121,6 @@ export function RewardTable({
             href={r.official_url}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={() => onVisit(r.id)}
             aria-label={`前往 ${r.store_name} 官網`}
             className="rounded-full p-1 text-muted hover:bg-bg"
           >

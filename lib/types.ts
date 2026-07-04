@@ -8,13 +8,7 @@ export interface RewardWithTags extends RewardRow {
 
 export type ViewMode = "table" | "card";
 
-export type SortKey =
-  | "expiry_asc"
-  | "score_desc"
-  | "clicks_desc"
-  | "store_name_asc"
-  | "created_desc"
-  | "updated_desc";
+export type SortKey = "expiry_asc" | "score_desc";
 
 export interface RewardFilters {
   query: string;
@@ -46,6 +40,5 @@ export interface DashboardStats {
   unusedCount: number;
   averageScore: number;
   topScoreStore: string | null;
-  topClickedStore: string | null;
   categoryCounts: Record<Category, number>;
 }
