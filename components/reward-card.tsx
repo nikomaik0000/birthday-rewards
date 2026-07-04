@@ -30,7 +30,6 @@ export function RewardCard({
         // border-radius/shadow stay on the shared rounded-card / shadow-soft
         // tokens so every card in the app stays visually consistent.
         "group relative flex flex-col gap-4 rounded-card border border-border bg-surface p-5 shadow-soft transition-shadow hover:shadow-pop",
-        "dark:border-border-dark dark:bg-surface-dark",
         reward.is_used && "opacity-60"
       )}
     >
@@ -44,7 +43,7 @@ export function RewardCard({
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => onVisit(reward.id)}
-                className="relative z-10 flex items-center gap-1 truncate font-medium text-ink hover:underline dark:text-ink-dark"
+                className="relative z-10 flex items-center gap-1 truncate font-medium text-ink hover:underline"
               >
                 <span className="truncate">{reward.store_name}</span>
                 <ExternalLink className="h-3 w-3 shrink-0 text-muted" />
@@ -68,14 +67,14 @@ export function RewardCard({
             onClick={() => onToggleFavorite(reward.id, !reward.is_favorite)}
             aria-label={reward.is_favorite ? "取消收藏" : "加入收藏"}
             aria-pressed={reward.is_favorite}
-            className="relative z-10 rounded-full p-1.5 text-muted hover:bg-bg dark:hover:bg-bg-dark"
+            className="relative z-10 rounded-full p-1.5 text-muted hover:bg-bg"
           >
             <Heart className={cn("h-4 w-4", reward.is_favorite && "fill-accent-coffee text-accent-coffee")} />
           </button>
         </div>
       </div>
 
-      <p className="line-clamp-3 text-sm text-ink/90 dark:text-ink-dark/90">{reward.content}</p>
+      <p className="line-clamp-3 text-sm text-ink/90">{reward.content}</p>
 
       {reward.tags.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
@@ -101,7 +100,7 @@ export function RewardCard({
                 "relative z-10 flex items-center gap-1 rounded-pill border px-2.5 py-1 text-xs font-medium transition-colors",
                 reward.is_used
                   ? "border-accent-green bg-accent-green/15 text-accent-green"
-                  : "border-border text-muted dark:border-border-dark"
+                  : "border-border text-muted"
               )}
             >
               <Check className="h-3 w-3" />
@@ -114,7 +113,7 @@ export function RewardCard({
                 "flex items-center gap-1 rounded-pill border px-2.5 py-1 text-xs font-medium",
                 reward.is_used
                   ? "border-accent-green bg-accent-green/15 text-accent-green"
-                  : "border-border text-muted dark:border-border-dark"
+                  : "border-border text-muted"
               )}
             >
               <Check className="h-3 w-3" />

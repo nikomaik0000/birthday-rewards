@@ -29,7 +29,7 @@ export function FilterPanel({
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="rounded-card border border-border bg-surface dark:border-border-dark dark:bg-surface-dark">
+    <div className="rounded-card border border-border bg-surface">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -49,7 +49,7 @@ export function FilterPanel({
       </button>
 
       {open && (
-        <div className="stack-16 border-t border-border px-4 py-4 dark:border-border-dark">
+        <div className="stack-16 border-t border-border px-4 py-4">
           {/* Category */}
           <FilterGroup label="類別">
             <div className="flex flex-wrap gap-2">
@@ -94,7 +94,7 @@ export function FilterPanel({
                     onCheckedChange={() => onChange({ ...filters, scores: toggleInArray(filters.scores, s) })}
                   />
                   {"★".repeat(s)}
-                  <span className="text-border dark:text-border-dark">{"★".repeat(5 - s)}</span>
+                  <span className="text-border">{"★".repeat(5 - s)}</span>
                 </label>
               ))}
             </div>
@@ -139,7 +139,7 @@ export function FilterPanel({
             </label>
             <div className="flex items-center gap-2 text-sm">
               <span>使用狀態</span>
-              <div className="flex overflow-hidden rounded-pill border border-border dark:border-border-dark">
+              <div className="flex overflow-hidden rounded-pill border border-border">
                 {(["all", "unused", "used"] as const).map((v) => (
                   <button
                     key={v}
@@ -148,7 +148,7 @@ export function FilterPanel({
                     className={cn(
                       "px-3 py-1 text-xs",
                       filters.usedFilter === v
-                        ? "bg-ink text-bg dark:bg-ink-dark dark:text-bg-dark"
+                        ? "bg-ink text-bg"
                         : "text-muted"
                     )}
                   >

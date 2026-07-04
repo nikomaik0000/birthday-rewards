@@ -15,7 +15,7 @@ export function StoreLogo({
   if (logoUrl) {
     return (
       <div
-        className={cn("relative shrink-0 overflow-hidden rounded-full bg-bg dark:bg-bg-dark", className)}
+        className={cn("relative shrink-0 overflow-hidden rounded-full bg-bg", className)}
         style={{ width: size, height: size }}
       >
         <Image src={logoUrl} alt={`${name} logo`} fill sizes={`${size}px`} className="object-cover" />

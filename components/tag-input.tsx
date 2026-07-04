@@ -28,7 +28,7 @@ export function TagInput({
 
   return (
     <div>
-      <div className="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-surface p-2 dark:border-border-dark dark:bg-surface-dark">
+      <div className="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-surface p-2">
         {value.map((name) => (
           <span key={name} className="flex items-center gap-1">
             <TagBadge name={name} colorHex={colorForTagName(name)} />
@@ -36,7 +36,7 @@ export function TagInput({
               type="button"
               onClick={() => onChange(value.filter((v) => v !== name))}
               aria-label={`移除標籤 ${name}`}
-              className="text-muted hover:text-ink dark:hover:text-ink-dark"
+              className="text-muted hover:text-ink"
             >
               <X className="h-3 w-3" />
             </button>
@@ -64,7 +64,7 @@ export function TagInput({
               key={s}
               type="button"
               onClick={() => addTag(s)}
-              className="rounded-pill border border-dashed border-border px-2.5 py-1 text-[11px] text-muted hover:border-solid hover:text-ink dark:border-border-dark dark:hover:text-ink-dark"
+              className="rounded-pill border border-dashed border-border px-2.5 py-1 text-[11px] text-muted hover:border-solid hover:text-ink"
             >
               + {s}
             </button>

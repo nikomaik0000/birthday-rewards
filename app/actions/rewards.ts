@@ -158,15 +158,6 @@ export async function toggleFavorite(id: string, isFavorite: boolean) {
   revalidatePath("/");
 }
 
-export async function toggleUsed(id: string, isUsed: boolean) {
-  const supabase = await createClient();
-  await requireAdmin(supabase); // v2: moved from public to admin-only
-
-  const { error } = await supabase.from("rewards").update({ is_used: isUsed }).eq("id", id);
-  if (error) throw error;
-  revalidatePath("/");
-}
-
 // Click tracking stays public — it's just a popularity counter, and it
 // already goes through the increment_click() SECURITY DEFINER RPC from
 // schema.sql, which is column-scoped the same way toggle_reward_favorite is.

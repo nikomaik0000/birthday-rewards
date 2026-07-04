@@ -9,7 +9,7 @@ export function StarRating({ score, className }: { score: number; className?: st
           key={i}
           className={cn(
             "h-3.5 w-3.5",
-            i < score ? "fill-accent-coffee text-accent-coffee" : "fill-none text-border dark:text-border-dark"
+            i < score ? "fill-accent-coffee text-accent-coffee" : "fill-none text-border"
           )}
           strokeWidth={1.5}
         />

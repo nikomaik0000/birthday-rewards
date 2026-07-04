@@ -20,7 +20,7 @@ export function DashboardStatsPanel({ stats }: { stats: DashboardStats }) {
         {cards.map((c) => (
           <div
             key={c.label}
-            className="rounded-card border border-border bg-surface px-4 py-3 dark:border-border-dark dark:bg-surface-dark"
+            className="rounded-card border border-border bg-surface px-4 py-3"
           >
             <div className="text-xs text-muted">{c.label}</div>
             <div className="mt-1 text-title font-semibold">{c.value}</div>
@@ -28,7 +28,7 @@ export function DashboardStatsPanel({ stats }: { stats: DashboardStats }) {
         ))}
       </div>
 
-      <div className="rounded-card border border-border bg-surface px-4 py-3 dark:border-border-dark dark:bg-surface-dark">
+      <div className="rounded-card border border-border bg-surface px-4 py-3">
         <div className="mb-2 text-xs text-muted">各類別數量</div>
         <div className="flex flex-wrap gap-x-6 gap-y-2">
           {CATEGORIES.map((c) => (

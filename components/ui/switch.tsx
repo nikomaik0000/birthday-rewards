@@ -12,7 +12,7 @@ export const Switch = forwardRef<
     ref={ref}
     className={cn(
       "h-5 w-9 shrink-0 rounded-pill bg-border transition-colors",
-      "data-[state=checked]:bg-accent-green dark:bg-border-dark",
+      "data-[state=checked]:bg-accent-green",
       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/40",
       className
     )}

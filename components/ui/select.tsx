@@ -16,7 +16,6 @@ export function SelectTrigger({
     <SelectPrimitive.Trigger
       className={cn(
         "flex h-9 items-center justify-between gap-2 rounded-lg border border-border bg-surface px-3 text-sm",
-        "dark:border-border-dark dark:bg-surface-dark",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/40",
         className
       )}
@@ -36,7 +35,6 @@ export function SelectContent({ children, className, ...props }: React.Component
       <SelectPrimitive.Content
         className={cn(
           "z-50 overflow-hidden rounded-lg border border-border bg-surface shadow-pop",
-          "dark:border-border-dark dark:bg-surface-dark",
           className
         )}
         {...props}
@@ -52,7 +50,7 @@ export function SelectItem({ children, className, ...props }: React.ComponentPro
     <SelectPrimitive.Item
       className={cn(
         "relative flex cursor-pointer select-none items-center rounded-md px-3 py-2 text-sm outline-none",
-        "data-[highlighted]:bg-bg dark:data-[highlighted]:bg-bg-dark",
+        "data-[highlighted]:bg-bg",
         className
       )}
       {...props}

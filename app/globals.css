@@ -12,15 +12,8 @@
     font-feature-settings: "cv11", "ss01";
   }
 
-  html.dark body {
-    @apply bg-bg-dark text-ink-dark;
-  }
-
   * {
     @apply border-border;
-  }
-  html.dark * {
-    @apply border-border-dark;
   }
 
   /* Visible keyboard focus, always */

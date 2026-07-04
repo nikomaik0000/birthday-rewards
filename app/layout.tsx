@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Noto_Sans_TC } from "next/font/google";
-import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "sonner";
 import { ServiceWorkerRegister } from "@/components/service-worker-register";
 import "./globals.css";
@@ -38,10 +37,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#FAF8F4" },
-    { media: "(prefers-color-scheme: dark)", color: "#1C1B19" },
-  ],
+  themeColor: "#FAF8F4",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -49,13 +45,11 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="zh-TW" suppressHydrationWarning>
+    <html lang="zh-TW">
       <body className={`${inter.variable} ${notoSansTC.variable} font-sans`}>
-        <ThemeProvider>
-          {children}
-          <Toaster position="top-center" richColors closeButton />
-          <ServiceWorkerRegister />
-        </ThemeProvider>
+        {children}
+        <Toaster position="top-center" richColors closeButton />
+        <ServiceWorkerRegister />
       </body>
     </html>
   );

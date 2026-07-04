@@ -14,13 +14,12 @@ export const Checkbox = forwardRef<
     className={cn(
       "h-4 w-4 shrink-0 rounded-[4px] border border-border bg-surface",
       "data-[state=checked]:bg-ink data-[state=checked]:border-ink",
-      "dark:border-border-dark dark:bg-surface-dark dark:data-[state=checked]:bg-ink-dark",
       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/40",
       className
     )}
     {...props}
   >
-    <CheckboxPrimitive.Indicator className="flex items-center justify-center text-bg dark:text-bg-dark">
+    <CheckboxPrimitive.Indicator className="flex items-center justify-center text-bg">
       <Check className="h-3 w-3" strokeWidth={3} />
     </CheckboxPrimitive.Indicator>
   </CheckboxPrimitive.Root>

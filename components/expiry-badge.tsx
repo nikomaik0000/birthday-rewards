@@ -7,7 +7,7 @@ export function ExpiryBadge({ expiryDate }: { expiryDate: string | null }) {
   if (info.state === "none") return null;
 
   const classes: Record<string, string> = {
-    expired: "bg-border text-muted dark:bg-border-dark",
+    expired: "bg-border text-muted",
     urgent: "bg-tag-expiring text-tag-expiring-fg",
     upcoming: "bg-tag-drink text-tag-drink-fg",
     ok: "bg-tag-other text-tag-other-fg",

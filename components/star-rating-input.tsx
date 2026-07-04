@@ -19,7 +19,7 @@ export function StarRatingInput({ value, onChange }: { value: number; onChange: 
           <Star
             className={cn(
               "h-5 w-5 transition-colors",
-              n <= value ? "fill-accent-coffee text-accent-coffee" : "fill-none text-border dark:text-border-dark"
+              n <= value ? "fill-accent-coffee text-accent-coffee" : "fill-none text-border"
             )}
             strokeWidth={1.5}
           />

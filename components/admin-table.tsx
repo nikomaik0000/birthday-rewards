@@ -101,7 +101,7 @@ export function AdminTable({ rewards }: { rewards: RewardWithTags[] }) {
               disabled={busy}
               onChange={(e) => e.target.value && handleBulkCategory(e.target.value as Category)}
               defaultValue=""
-              className="h-8 rounded-lg border border-border bg-surface px-2 text-xs dark:border-border-dark dark:bg-surface-dark"
+              className="h-8 rounded-lg border border-border bg-surface px-2 text-xs"
             >
               <option value="" disabled>
                 批次設定類別
@@ -120,10 +120,10 @@ export function AdminTable({ rewards }: { rewards: RewardWithTags[] }) {
         )}
       </div>
 
-      <div className="overflow-x-auto rounded-card border border-border dark:border-border-dark">
+      <div className="overflow-x-auto rounded-card border border-border">
         <table className="w-full min-w-[760px] border-collapse text-list">
           <thead>
-            <tr className="border-b border-border bg-bg/60 dark:border-border-dark dark:bg-bg-dark/60">
+            <tr className="border-b border-border bg-bg/60">
               <th className="w-10 px-4 py-3">
                 <Checkbox checked={allSelected} onCheckedChange={toggleAll} aria-label="全選" />
               </th>
@@ -137,7 +137,7 @@ export function AdminTable({ rewards }: { rewards: RewardWithTags[] }) {
           </thead>
           <tbody>
             {filtered.map((r) => (
-              <tr key={r.id} className="border-b border-border last:border-0 dark:border-border-dark">
+              <tr key={r.id} className="border-b border-border last:border-0">
                 <td className="px-4 py-3">
                   <Checkbox checked={selected.has(r.id)} onCheckedChange={() => toggleOne(r.id)} aria-label={`選取 ${r.store_name}`} />
                 </td>
@@ -154,15 +154,14 @@ export function AdminTable({ rewards }: { rewards: RewardWithTags[] }) {
                   <StarRating score={r.score} />
                 </td>
                 <td className="px-4 py-3 text-xs text-muted">
-                  {r.is_favorite ? "★ 收藏 · " : ""}
-                  {r.is_used ? "已使用" : "未使用"}
+                  {r.is_favorite ? "★ 收藏" : "—"}
                 </td>
                 <td className="px-4 py-3 tabular-nums text-muted">{r.click_count}</td>
                 <td className="px-4 py-3">
                   <div className="flex items-center justify-end gap-1">
                     <Link
                       href={`/admin/rewards/${r.id}/edit`}
-                      className="rounded-full p-1.5 text-muted hover:bg-bg dark:hover:bg-bg-dark"
+                      className="rounded-full p-1.5 text-muted hover:bg-bg"
                       aria-label={`編輯 ${r.store_name}`}
                     >
                       <Pencil className="h-3.5 w-3.5" />
@@ -170,7 +169,7 @@ export function AdminTable({ rewards }: { rewards: RewardWithTags[] }) {
                     <button
                       type="button"
                       onClick={() => handleDeleteOne(r.id, r.store_name)}
-                      className="rounded-full p-1.5 text-muted hover:bg-bg dark:hover:bg-bg-dark"
+                      className="rounded-full p-1.5 text-muted hover:bg-bg"
                       aria-label={`刪除 ${r.store_name}`}
                     >
                       <Trash2 className="h-3.5 w-3.5" />

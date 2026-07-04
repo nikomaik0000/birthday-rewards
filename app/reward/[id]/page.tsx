@@ -49,12 +49,12 @@ export default async function RewardDetailPage({
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-6 sm:px-6">
-      <Link href="/" className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted hover:text-ink dark:hover:text-ink-dark">
+      <Link href="/" className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted hover:text-ink">
         <ArrowLeft className="h-4 w-4" />
         返回列表
       </Link>
 
-      <div className="rounded-card border border-border bg-surface p-6 dark:border-border-dark dark:bg-surface-dark">
+      <div className="rounded-card border border-border bg-surface p-6">
         <div className="flex items-start gap-4">
           <StoreLogo name={reward.store_name} logoUrl={reward.logo_url} size={56} />
           <div className="min-w-0 flex-1">
@@ -70,7 +70,7 @@ export default async function RewardDetailPage({
           </div>
         </div>
 
-        <p className="mt-5 whitespace-pre-wrap text-sm leading-relaxed text-ink/90 dark:text-ink-dark/90">
+        <p className="mt-5 whitespace-pre-wrap text-sm leading-relaxed text-ink/90">
           {reward.content}
         </p>
 
@@ -82,7 +82,7 @@ export default async function RewardDetailPage({
           </div>
         )}
 
-        <div className="mt-5 grid grid-cols-2 gap-4 border-t border-border pt-4 text-sm dark:border-border-dark">
+        <div className="mt-5 grid grid-cols-2 gap-4 border-t border-border pt-4 text-sm">
           <InfoRow label="分數" value={<StarRating score={reward.score} />} />
           <InfoRow label="日期分類" value={reward.date_category} />
           <InfoRow label="點擊次數" value={reward.click_count} />
@@ -97,18 +97,18 @@ export default async function RewardDetailPage({
       {/* v2: general visitors get a read-only view of 使用心得; only a
           signed-in admin sees the editable textarea + save button. */}
       {(isAdmin || reward.notes) && (
-        <div className="mt-5 rounded-card border border-border bg-surface p-6 dark:border-border-dark dark:bg-surface-dark">
+        <div className="mt-5 rounded-card border border-border bg-surface p-6">
           <h2 className="mb-3 text-sm font-medium">使用心得</h2>
           {isAdmin ? (
             <NotesEditor rewardId={reward.id} initialNotes={reward.notes} />
           ) : (
-            <p className="whitespace-pre-wrap text-sm text-ink/80 dark:text-ink-dark/80">{reward.notes}</p>
+            <p className="whitespace-pre-wrap text-sm text-ink/80">{reward.notes}</p>
           )}
         </div>
       )}
 
       {history.length > 0 && (
-        <div className="mt-5 rounded-card border border-border bg-surface p-6 dark:border-border-dark dark:bg-surface-dark">
+        <div className="mt-5 rounded-card border border-border bg-surface p-6">
           <h2 className="mb-3 flex items-center gap-1.5 text-sm font-medium">
             <Clock className="h-4 w-4" />
             歷史更新紀錄

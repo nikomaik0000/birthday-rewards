@@ -50,19 +50,19 @@ export function ReportsPanel({ reports }: { reports: ReportWithStoreName[] }) {
   }
 
   return (
-    <div className="mb-6 rounded-card border border-border bg-surface p-5 dark:border-border-dark dark:bg-surface-dark">
+    <div className="mb-6 rounded-card border border-border bg-surface p-5">
       <h2 className="mb-3 flex items-center gap-1.5 text-sm font-medium">
         <Flag className="h-4 w-4" />
         資料回報（{reports.length} 筆待處理）
       </h2>
       <ul className="stack-8">
         {reports.map((r) => (
-          <li key={r.id} className="flex items-start justify-between gap-3 rounded-lg border border-border p-3 text-sm dark:border-border-dark">
+          <li key={r.id} className="flex items-start justify-between gap-3 rounded-lg border border-border p-3 text-sm">
             <div className="min-w-0">
               <Link href={`/reward/${r.reward_id}`} className="font-medium hover:underline">
                 {r.store_name}
               </Link>
-              <p className="mt-1 text-ink/80 dark:text-ink-dark/80">{r.message}</p>
+              <p className="mt-1 text-ink/80">{r.message}</p>
               <p className="mt-1 text-xs text-muted">
                 {formatDate(r.created_at)}
                 {r.contact ? ` · ${r.contact}` : ""}

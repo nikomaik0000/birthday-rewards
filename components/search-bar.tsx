@@ -25,7 +25,7 @@ export function SearchBar({
           type="button"
           onClick={() => onChange("")}
           aria-label="清除搜尋"
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-ink dark:hover:text-ink-dark"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-ink"
         >
           <X className="h-4 w-4" />
         </button>

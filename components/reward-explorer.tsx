@@ -11,13 +11,13 @@ import { RewardCard } from "@/components/reward-card";
 import { RewardTable } from "@/components/reward-table";
 import { EmptyState } from "@/components/empty-state";
 import { DashboardStatsPanel } from "@/components/dashboard-stats";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useViewMode } from "@/hooks/use-view-mode";
+import { useLocalFavorites, useLocalUsedStatus } from "@/hooks/use-local-reward-flags";
 import { DEFAULT_FILTERS, type RewardFilters, type RewardWithTags, type SortKey } from "@/lib/types";
 import { computeDashboardStats } from "@/lib/stats";
-import { toggleFavorite, toggleUsed, trackClick } from "@/app/actions/rewards";
+import { toggleFavorite, trackClick } from "@/app/actions/rewards";
 import type { TagRow } from "@/lib/database.types";
 import { getExpiryInfo } from "@/lib/utils";
 
@@ -39,10 +39,26 @@ export function RewardExplorer({
   const [showStats, setShowStats] = useState(false);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
+  // Favorites: admins keep the existing Supabase-backed toggle (`rewards.is_favorite`).
+  // Everyone else favorites locally in their own browser — never written to Supabase.
+  // Used status: a personal checklist for every visitor (including admins), always local.
+  const localFavorites = useLocalFavorites();
+  const localUsed = useLocalUsedStatus();
+
+  const decoratedRewards = useMemo(
+    () =>
+      rewards.map((r) => ({
+        ...r,
+        is_favorite: isAdmin ? r.is_favorite : localFavorites.has(r.id),
+        is_used: localUsed.has(r.id),
+      })),
+    [rewards, isAdmin, localFavorites, localUsed]
+  );
+
   const debouncedQuery = useDebouncedValue(filters.query, 150);
 
   const filtered = useMemo(() => {
-    let list = rewards;
+    let list = decoratedRewards;
 
     if (debouncedQuery.trim()) {
       const q = debouncedQuery.trim().toLowerCase();
@@ -71,7 +87,7 @@ export function RewardExplorer({
       list = list.filter((r) => getExpiryInfo(r.expiry_date).state !== "expired");
 
     return list;
-  }, [rewards, debouncedQuery, filters]);
+  }, [decoratedRewards, debouncedQuery, filters]);
 
   const sorted = useMemo(() => {
     const list = [...filtered];
@@ -118,19 +134,26 @@ export function RewardExplorer({
     return () => observer.disconnect();
   }, [sorted.length]);
 
-  const handleToggleFavorite = useCallback((id: string, next: boolean) => {
-    setRewards((prev) => prev.map((r) => (r.id === id ? { ...r, is_favorite: next } : r)));
-    toggleFavorite(id, next).catch(() => {
-      setRewards((prev) => prev.map((r) => (r.id === id ? { ...r, is_favorite: !next } : r)));
-    });
-  }, []);
+  const handleToggleFavorite = useCallback(
+    (id: string, next: boolean) => {
+      if (isAdmin) {
+        setRewards((prev) => prev.map((r) => (r.id === id ? { ...r, is_favorite: next } : r)));
+        toggleFavorite(id, next).catch(() => {
+          setRewards((prev) => prev.map((r) => (r.id === id ? { ...r, is_favorite: !next } : r)));
+        });
+      } else {
+        localFavorites.toggle(id, next);
+      }
+    },
+    [isAdmin, localFavorites]
+  );
 
-  const handleToggleUsed = useCallback((id: string, next: boolean) => {
-    setRewards((prev) => prev.map((r) => (r.id === id ? { ...r, is_used: next } : r)));
-    toggleUsed(id, next).catch(() => {
-      setRewards((prev) => prev.map((r) => (r.id === id ? { ...r, is_used: !next } : r)));
-    });
-  }, []);
+  const handleToggleUsed = useCallback(
+    (id: string, next: boolean) => {
+      localUsed.toggle(id, next);
+    },
+    [localUsed]
+  );
 
   const handleVisit = useCallback((id: string) => {
     setRewards((prev) => prev.map((r) => (r.id === id ? { ...r, click_count: r.click_count + 1 } : r)));
@@ -146,25 +169,24 @@ export function RewardExplorer({
     (filters.usedFilter !== "all" ? 1 : 0) +
     (filters.hideExpired ? 1 : 0);
 
-  const stats = useMemo(() => computeDashboardStats(rewards), [rewards]);
+  const stats = useMemo(() => computeDashboardStats(decoratedRewards), [decoratedRewards]);
 
   return (
     <div className="mx-auto max-w-6xl px-4 pb-24 pt-4 sm:px-6">
-      <header className="sticky top-0 z-20 -mx-4 mb-5 border-b border-border bg-bg/90 px-4 pb-3 pt-2 backdrop-blur sm:-mx-6 sm:px-6 dark:border-border-dark dark:bg-bg-dark/90">
+      <header className="sticky top-0 z-20 -mx-4 mb-5 border-b border-border bg-bg/90 px-4 pb-3 pt-2 backdrop-blur sm:-mx-6 sm:px-6">
         <div className="mb-3 flex items-center justify-between gap-3">
           <h1 className="text-title font-semibold">生日優惠整理</h1>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" onClick={() => setShowStats((v) => !v)} aria-label="切換儀表板">
               <BarChart3 className="h-4 w-4" />
             </Button>
-            <ThemeToggle />
             {/* v2: front-end "新增優惠" removed — this just links to the
                 gated /admin area for whoever knows to look for it. */}
             <Link
               href="/admin"
               aria-label="後台管理"
               title="後台管理"
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-border text-muted hover:bg-surface hover:text-ink dark:border-border-dark dark:text-ink-dark/70 dark:hover:bg-surface-dark"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-border text-muted hover:bg-surface hover:text-ink"
             >
               <Lock className="h-4 w-4" strokeWidth={1.75} />
             </Link>
@@ -197,7 +219,7 @@ export function RewardExplorer({
         <RewardTable
           rewards={visible}
           onToggleFavorite={handleToggleFavorite}
-          onToggleUsed={isAdmin ? handleToggleUsed : undefined}
+          onToggleUsed={handleToggleUsed}
           onVisit={handleVisit}
         />
       ) : (
@@ -207,7 +229,7 @@ export function RewardExplorer({
               key={r.id}
               reward={r}
               onToggleFavorite={handleToggleFavorite}
-              onToggleUsed={isAdmin ? handleToggleUsed : undefined}
+              onToggleUsed={handleToggleUsed}
               onVisit={handleVisit}
             />
           ))}

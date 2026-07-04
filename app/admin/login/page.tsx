@@ -12,7 +12,7 @@ export default function AdminLoginPage() {
       <Suspense>
         <LoginForm />
       </Suspense>
-      <Link href="/" className="mt-6 text-center text-xs text-muted hover:text-ink dark:hover:text-ink-dark">
+      <Link href="/" className="mt-6 text-center text-xs text-muted hover:text-ink">
         返回首頁
       </Link>
     </div>

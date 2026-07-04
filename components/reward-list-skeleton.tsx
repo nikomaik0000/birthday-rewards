@@ -4,7 +4,7 @@ export function RewardListSkeleton() {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="rounded-card border border-border p-4 dark:border-border-dark">
+        <div key={i} className="rounded-card border border-border p-4">
           <div className="flex items-center gap-3">
             <Skeleton className="h-9 w-9 rounded-full" />
             <Skeleton className="h-4 w-24" />

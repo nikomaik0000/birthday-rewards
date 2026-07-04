@@ -44,7 +44,7 @@ export function ReportDialog({ rewardId, storeName }: { rewardId: string; storeN
           onClick={(e) => e.stopPropagation()}
           aria-label={`回報 ${storeName} 資料問題`}
           title="回報資料問題"
-          className="relative z-10 rounded-full p-1.5 text-muted hover:bg-bg dark:hover:bg-bg-dark"
+          className="relative z-10 rounded-full p-1.5 text-muted hover:bg-bg"
         >
           <Flag className="h-3.5 w-3.5" />
         </button>

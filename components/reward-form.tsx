@@ -52,7 +52,7 @@ export function RewardForm({
         <Field label="類別" error={errors.category?.message}>
           <select
             {...register("category")}
-            className="h-9 w-full rounded-lg border border-border bg-surface px-3 text-sm dark:border-border-dark dark:bg-surface-dark"
+            className="h-9 w-full rounded-lg border border-border bg-surface px-3 text-sm"
           >
             {CATEGORIES.map((c) => (
               <option key={c} value={c}>
@@ -65,7 +65,7 @@ export function RewardForm({
         <Field label="日期分類" error={errors.date_category?.message}>
           <select
             {...register("date_category")}
-            className="h-9 w-full rounded-lg border border-border bg-surface px-3 text-sm dark:border-border-dark dark:bg-surface-dark"
+            className="h-9 w-full rounded-lg border border-border bg-surface px-3 text-sm"
           >
             {DATE_CATEGORIES.map((d) => (
               <option key={d} value={d}>

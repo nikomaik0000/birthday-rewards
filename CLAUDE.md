@@ -11,18 +11,22 @@ Before making any changes, always read:
 
 This project is already in production.
 
-Never perform global regex replacements.
+Always prioritize safety over speed.
 
-Never modify unrelated files.
+Do not perform global regex replacements.
 
-If more than 10 files need modification, explain the plan first and wait for approval.
+Do not modify unrelated files.
 
-Complete only ONE task at a time.
+If more than 10 files need modification, explain the reason first.
 
-After each task:
+Complete only ONE phase at a time.
+
+Wait for approval before editing.
+
+After each phase:
 
 - TypeScript must compile successfully.
 - No broken imports.
 - No console errors.
 
-Then stop and wait for the next instruction.
+Then stop and wait for the next task.

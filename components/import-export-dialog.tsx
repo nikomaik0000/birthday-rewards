@@ -83,7 +83,7 @@ export function ImportExportDialog() {
             />
           </div>
 
-          <div className="border-t border-border pt-4 dark:border-border-dark">
+          <div className="border-t border-border pt-4">
             <h3 className="mb-2 text-sm font-medium">匯出</h3>
             <div className="flex flex-wrap gap-2">
               {(["csv", "xlsx", "json"] as const).map((f) => (

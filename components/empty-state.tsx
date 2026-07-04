@@ -8,7 +8,7 @@ export function EmptyState({
   description?: string;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-3 rounded-card border border-dashed border-border py-16 text-center dark:border-border-dark">
+    <div className="flex flex-col items-center justify-center gap-3 rounded-card border border-dashed border-border py-16 text-center">
       <Gift className="h-8 w-8 text-muted" strokeWidth={1.5} />
       <div>
         <p className="font-medium">{title}</p>

@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 export function ViewToggle({ mode, onChange }: { mode: ViewMode; onChange: (m: ViewMode) => void }) {
   return (
-    <div className="flex items-center rounded-pill border border-border p-0.5 dark:border-border-dark">
+    <div className="flex items-center rounded-pill border border-border p-0.5">
       <button
         type="button"
         onClick={() => onChange("card")}
@@ -14,7 +14,7 @@ export function ViewToggle({ mode, onChange }: { mode: ViewMode; onChange: (m: V
         aria-pressed={mode === "card"}
         className={cn(
           "flex h-8 w-8 items-center justify-center rounded-pill transition-colors",
-          mode === "card" ? "bg-ink text-bg dark:bg-ink-dark dark:text-bg-dark" : "text-muted"
+          mode === "card" ? "bg-ink text-bg" : "text-muted"
         )}
       >
         <LayoutGrid className="h-4 w-4" />
@@ -26,7 +26,7 @@ export function ViewToggle({ mode, onChange }: { mode: ViewMode; onChange: (m: V
         aria-pressed={mode === "table"}
         className={cn(
           "flex h-8 w-8 items-center justify-center rounded-pill transition-colors",
-          mode === "table" ? "bg-ink text-bg dark:bg-ink-dark dark:text-bg-dark" : "text-muted"
+          mode === "table" ? "bg-ink text-bg" : "text-muted"
         )}
       >
         <Rows3 className="h-4 w-4" />

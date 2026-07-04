@@ -16,7 +16,7 @@ export function SortMenu({ value, onChange }: { value: SortKey; onChange: (v: So
           type="button"
           className={cn(
             "flex h-9 items-center gap-1.5 rounded-pill border border-border px-3 text-xs font-medium text-ink",
-            "dark:border-border-dark dark:text-ink-dark hover:bg-surface dark:hover:bg-surface-dark"
+            " hover:bg-surface"
           )}
         >
           <ArrowUpDown className="h-3.5 w-3.5" />
@@ -27,7 +27,7 @@ export function SortMenu({ value, onChange }: { value: SortKey; onChange: (v: So
         <DropdownMenu.Content
           align="end"
           sideOffset={6}
-          className="z-50 min-w-[200px] rounded-lg border border-border bg-surface p-1 shadow-pop dark:border-border-dark dark:bg-surface-dark"
+          className="z-50 min-w-[200px] rounded-lg border border-border bg-surface p-1 shadow-pop"
         >
           {SORT_OPTIONS.map((opt) => (
             <DropdownMenu.Item
@@ -35,7 +35,7 @@ export function SortMenu({ value, onChange }: { value: SortKey; onChange: (v: So
               onSelect={() => onChange(opt.value as SortKey)}
               className={cn(
                 "cursor-pointer rounded-md px-3 py-2 text-sm outline-none",
-                "data-[highlighted]:bg-bg dark:data-[highlighted]:bg-bg-dark",
+                "data-[highlighted]:bg-bg",
                 opt.value === value && "font-medium text-accent-coffee"
               )}
             >

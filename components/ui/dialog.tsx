@@ -20,7 +20,6 @@ export function DialogContent({
         className={cn(
           "fixed left-1/2 top-1/2 z-50 w-[calc(100%-32px)] max-w-lg -translate-x-1/2 -translate-y-1/2",
           "rounded-card bg-surface p-6 shadow-pop animate-slideUp",
-          "dark:bg-surface-dark",
           "max-h-[85vh] overflow-y-auto",
           className
         )}
@@ -28,7 +27,7 @@ export function DialogContent({
       >
         <div className="mb-4 flex items-center justify-between">
           <DialogPrimitive.Title className="text-title font-semibold">{title}</DialogPrimitive.Title>
-          <DialogPrimitive.Close className="rounded-full p-1 text-muted hover:bg-bg dark:hover:bg-bg-dark">
+          <DialogPrimitive.Close className="rounded-full p-1 text-muted hover:bg-bg">
             <X className="h-4 w-4" />
           </DialogPrimitive.Close>
         </div>

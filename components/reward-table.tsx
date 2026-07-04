@@ -46,7 +46,7 @@ export function RewardTable({
       id: "content",
       header: "優惠內容",
       cell: ({ row }) => (
-        <span className="line-clamp-2 max-w-[320px] text-ink/90 dark:text-ink-dark/90">
+        <span className="line-clamp-2 max-w-[320px] text-ink/90">
           {row.original.content}
         </span>
       ),
@@ -85,7 +85,7 @@ export function RewardTable({
             onClick={() => onToggleFavorite(r.id, !r.is_favorite)}
             aria-pressed={r.is_favorite}
             aria-label={r.is_favorite ? "取消收藏" : "加入收藏"}
-            className="rounded-full p-1 text-muted hover:bg-bg dark:hover:bg-bg-dark"
+            className="rounded-full p-1 text-muted hover:bg-bg"
           >
             <Heart className={cn("h-4 w-4", r.is_favorite && "fill-accent-coffee text-accent-coffee")} />
           </button>
@@ -101,7 +101,7 @@ export function RewardTable({
           "flex items-center gap-1 rounded-pill border px-2 py-0.5 text-xs",
           r.is_used
             ? "border-accent-green bg-accent-green/15 text-accent-green"
-            : "border-border text-muted dark:border-border-dark"
+            : "border-border text-muted"
         );
         if (!onToggleUsed) {
           // Read-only for general visitors (v2: no public write access)
@@ -138,7 +138,7 @@ export function RewardTable({
             rel="noopener noreferrer"
             onClick={() => onVisit(r.id)}
             aria-label={`前往 ${r.store_name} 官網`}
-            className="rounded-full p-1 text-muted hover:bg-bg dark:hover:bg-bg-dark"
+            className="rounded-full p-1 text-muted hover:bg-bg"
           >
             <ExternalLink className="h-3.5 w-3.5" />
           </a>
@@ -150,11 +150,11 @@ export function RewardTable({
   const table = useReactTable({ data: rewards, columns, getCoreRowModel: getCoreRowModel() });
 
   return (
-    <div className="overflow-x-auto rounded-card border border-border dark:border-border-dark">
+    <div className="overflow-x-auto rounded-card border border-border">
       <table className="w-full min-w-[880px] border-collapse text-list">
         <thead>
           {table.getHeaderGroups().map((hg) => (
-            <tr key={hg.id} className="border-b border-border bg-bg/60 dark:border-border-dark dark:bg-bg-dark/60">
+            <tr key={hg.id} className="border-b border-border bg-bg/60">
               {hg.headers.map((header) => (
                 <th key={header.id} className="px-4 py-3 text-left font-medium text-muted">
                   {flexRender(header.column.columnDef.header, header.getContext())}
@@ -168,7 +168,7 @@ export function RewardTable({
             <tr
               key={row.id}
               className={cn(
-                "border-b border-border last:border-0 hover:bg-bg/40 dark:border-border-dark dark:hover:bg-bg-dark/40",
+                "border-b border-border last:border-0 hover:bg-bg/40",
                 row.original.is_used && "opacity-60"
               )}
             >
