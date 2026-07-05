@@ -1,0 +1,61 @@
+diff --git a/components/admin-table.tsx b/components/admin-table.tsx
+index c890793..864c955 100644
+--- a/components/admin-table.tsx
++++ b/components/admin-table.tsx
+@@ -120,16 +120,16 @@ export function AdminTable({ rewards }: { rewards: RewardWithTags[] }) {
+       </div>
+ 
+       <div className="overflow-x-auto rounded-card border border-border">
+-        <table className="w-full min-w-[760px] border-collapse text-list">
++        <table className="w-full min-w-[420px] border-collapse text-list sm:min-w-[760px]">
+           <thead>
+             <tr className="border-b border-border bg-bg/60">
+               <th className="w-10 px-4 py-3">
+                 <Checkbox checked={allSelected} onCheckedChange={toggleAll} aria-label="全選" />
+               </th>
+               <th className="px-4 py-3 text-left font-medium text-muted">店家</th>
+-              <th className="px-4 py-3 text-left font-medium text-muted">類別</th>
+-              <th className="px-4 py-3 text-left font-medium text-muted">分數</th>
+-              <th className="px-4 py-3 text-left font-medium text-muted">日期</th>
++              <th className="hidden px-4 py-3 text-left font-medium text-muted sm:table-cell">類別</th>
++              <th className="hidden px-4 py-3 text-left font-medium text-muted sm:table-cell">分數</th>
++              <th className="hidden px-4 py-3 text-left font-medium text-muted sm:table-cell">日期</th>
+               <th className="w-20 px-4 py-3" />
+             </tr>
+           </thead>
+@@ -142,13 +142,13 @@ export function AdminTable({ rewards }: { rewards: RewardWithTags[] }) {
+                 <td className="px-4 py-3">
+                   <span className="font-medium">{r.store_name}</span>
+                 </td>
+-                <td className="px-4 py-3">
++                <td className="hidden px-4 py-3 sm:table-cell">
+                   <CategoryBadge category={r.category} />
+                 </td>
+-                <td className="px-4 py-3">
++                <td className="hidden px-4 py-3 sm:table-cell">
+                   <StarRating score={r.score} />
+                 </td>
+-                <td className="px-4 py-3 text-xs text-muted">
++                <td className="hidden px-4 py-3 text-xs text-muted sm:table-cell">
+                   {r.date_category}
+                 </td>
+                 <td className="px-4 py-3">
+diff --git a/docs/CHANGELOG.md b/docs/CHANGELOG.md
+index 14c6f5c..07606ba 100644
+--- a/docs/CHANGELOG.md
++++ b/docs/CHANGELOG.md
+@@ -2,6 +2,14 @@
+ 
+ ## v3.3 (In Progress)
+ 
++### Phase 3B - Admin Mobile Table Optimization
++
++Changed
++
++- Admin table on mobile now hides the Category, Rating, and Date columns, showing only Checkbox, Store, Edit, and Delete
++- Reduced the table's mobile minimum width so it fits typical phone screens without unnecessary horizontal scrolling
++- Desktop layout, all columns, and table behavior remain unchanged (columns reappear at the `sm` breakpoint and above)
++
+ ### Phase 3A - Rating Display Cleanup
+ 
+ Changed

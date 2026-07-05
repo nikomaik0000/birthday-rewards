@@ -2,6 +2,14 @@
 
 ## v3.3 (In Progress)
 
+### Phase 3B - Admin Mobile Table Optimization
+
+Changed
+
+- Admin table on mobile now hides the Category, Rating, and Date columns, showing only Checkbox, Store, Edit, and Delete
+- Reduced the table's mobile minimum width so it fits typical phone screens without unnecessary horizontal scrolling
+- Desktop layout, all columns, and table behavior remain unchanged (columns reappear at the `sm` breakpoint and above)
+
 ### Phase 3A - Rating Display Cleanup
 
 Changed
