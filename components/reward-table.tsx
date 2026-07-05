@@ -53,7 +53,7 @@ export function RewardTable({
                 isExpanded && "rotate-90"
               )}
             />
-            <span className="block w-[116px] shrink-0 truncate font-medium md:w-auto md:max-w-none">
+            <span className="block w-[88px] sm:w-[100px] md:w-auto shrink-0 truncate font-medium">
               {r.store_name}
             </span>
           </Link>
@@ -174,7 +174,7 @@ export function RewardTable({
                 <th
                   key={header.id}
                   className={cn(
-                    "px-4 py-3 text-left font-medium text-muted",
+                    "px-2 md:px-4 py-3 text-left font-medium text-muted",
                     MOBILE_HIDDEN_COLUMN_IDS.has(header.column.id) && "hidden md:table-cell"
                   )}
                 >
@@ -205,10 +205,10 @@ export function RewardTable({
                     <td
                       key={cell.id}
                       className={cn(
-                        "px-4 py-3 align-middle",
+                        "px-2 md:px-4 py-3 align-middle",
                         MOBILE_HIDDEN_COLUMN_IDS.has(cell.column.id) && "hidden md:table-cell",
                         cell.column.id === "content" && "min-w-0",
-                        cell.column.id === "favorite" && "pl-6 md:pl-4"
+                        cell.column.id === "favorite" && "pl-4 md:pl-4"
                       )}
                     >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
