@@ -19,14 +19,21 @@ export function FilterPanel({
   filters,
   onChange,
   allTags,
+  usedTagIds,
   activeCount,
 }: {
   filters: RewardFilters;
   onChange: (filters: RewardFilters) => void;
   allTags: TagRow[];
+  usedTagIds: Set<string>;
   activeCount: number;
 }) {
   const [open, setOpen] = useState(false);
+
+  // Only offer tags that are actually used by at least one reward, while
+  // preserving the curated order of `allTags` — no alphabetical or
+  // frequency sorting.
+  const visibleTags = allTags.filter((tag) => usedTagIds.has(tag.id));
 
   return (
     <div className="rounded-card border border-border bg-surface">
@@ -49,7 +56,7 @@ export function FilterPanel({
       </button>
 
       {open && (
-        <div className="stack-16 border-t border-border px-4 py-4">
+        <div className="space-y-6 border-t border-border px-4 py-4">
           {/* Category */}
           <FilterGroup label="類別">
             <div className="flex flex-wrap gap-2">
@@ -100,10 +107,10 @@ export function FilterPanel({
           </FilterGroup>
 
           {/* Tags */}
-          {allTags.length > 0 && (
+          {visibleTags.length > 0 && (
             <FilterGroup label="標籤">
               <div className="flex flex-wrap gap-2">
-                {allTags.map((tag) => (
+                {visibleTags.map((tag) => (
                   <button
                     key={tag.id}
                     type="button"
@@ -121,7 +128,7 @@ export function FilterPanel({
           )}
 
           {/* Toggles */}
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-3 pt-1">
+          <div className="flex flex-col gap-3 pt-4 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-6 sm:gap-y-3">
             <label className="flex items-center gap-2 text-sm">
               <Switch
                 checked={filters.favoriteOnly}
@@ -189,7 +196,7 @@ export function FilterPanel({
 function FilterGroup({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <div className="mb-2 text-xs font-medium text-muted">{label}</div>
+      <div className="mb-2 text-xs font-medium text-muted/70">{label}</div>
       {children}
     </div>
   );

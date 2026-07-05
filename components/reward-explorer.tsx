@@ -158,6 +158,14 @@ export function RewardExplorer({
 
   const stats = useMemo(() => computeDashboardStats(decoratedRewards), [decoratedRewards]);
 
+  // Tag filter options should only include tags actually used somewhere in the
+  // dataset, but stay stable while the person applies other filters — so this
+  // is derived from the full `rewards` list, not `filtered`/`sorted`.
+  const usedTagIds = useMemo(
+    () => new Set(rewards.flatMap((r) => r.tags.map((t) => t.id))),
+    [rewards]
+  );
+
   return (
     <div className="mx-auto max-w-6xl px-4 pb-24 pt-4 sm:px-6">
       <header className="sticky top-0 z-20 -mx-4 mb-5 border-b border-border bg-bg/90 px-4 pb-3 pt-2 backdrop-blur sm:-mx-6 sm:px-6">
@@ -182,7 +190,13 @@ export function RewardExplorer({
         <SearchBar value={filters.query} onChange={(query) => setFilters((f) => ({ ...f, query }))} />
         <div className="mt-3 flex items-center justify-between gap-2">
           <div className="flex-1">
-            <FilterPanel filters={filters} onChange={setFilters} allTags={allTags} activeCount={activeFilterCount} />
+            <FilterPanel
+              filters={filters}
+              onChange={setFilters}
+              allTags={allTags}
+              usedTagIds={usedTagIds}
+              activeCount={activeFilterCount}
+            />
           </div>
         </div>
         <div className="mt-2 flex items-center justify-between">
