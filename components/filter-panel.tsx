@@ -93,8 +93,7 @@ export function FilterPanel({
                     checked={filters.scores.includes(s)}
                     onCheckedChange={() => onChange({ ...filters, scores: toggleInArray(filters.scores, s) })}
                   />
-                  {"★".repeat(s)}
-                  <span className="text-border">{"★".repeat(5 - s)}</span>
+                  ⭐ {s}/5
                 </label>
               ))}
             </div>

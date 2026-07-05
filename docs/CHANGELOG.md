@@ -2,6 +2,13 @@
 
 ## v3.3 (In Progress)
 
+### Phase 3A - Rating Display Cleanup
+
+Changed
+
+- Replaced read-only star icon ratings with compact text format (⭐ X/5) across reward cards, tables, admin table, reward detail page, dashboard stats, and the score filter
+- Admin interactive rating selector (star click input) unchanged
+
 ### Phase 2B - Admin UX
 
 Added
