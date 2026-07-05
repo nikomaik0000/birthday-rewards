@@ -120,27 +120,29 @@ export function AdminTable({ rewards }: { rewards: RewardWithTags[] }) {
       </div>
 
       <div className="overflow-x-auto rounded-card border border-border">
-        <table className="w-full min-w-[420px] border-collapse text-list sm:min-w-[760px]">
+        <table className="w-full border-collapse text-list">
           <thead>
             <tr className="border-b border-border bg-bg/60">
-              <th className="w-10 px-4 py-3">
+              <th className="w-10 px-2 py-3 sm:px-4">
                 <Checkbox checked={allSelected} onCheckedChange={toggleAll} aria-label="全選" />
               </th>
-              <th className="px-4 py-3 text-left font-medium text-muted">店家</th>
+              <th className="px-2 py-3 text-left font-medium text-muted sm:px-4">店家</th>
               <th className="hidden px-4 py-3 text-left font-medium text-muted sm:table-cell">類別</th>
               <th className="hidden px-4 py-3 text-left font-medium text-muted sm:table-cell">分數</th>
               <th className="hidden px-4 py-3 text-left font-medium text-muted sm:table-cell">日期</th>
-              <th className="w-20 px-4 py-3" />
+              <th className="w-16 px-2 py-3 sm:w-20 sm:px-4" />
             </tr>
           </thead>
           <tbody>
             {filtered.map((r) => (
               <tr key={r.id} className="border-b border-border last:border-0">
-                <td className="px-4 py-3">
+                <td className="px-2 py-3 sm:px-4">
                   <Checkbox checked={selected.has(r.id)} onCheckedChange={() => toggleOne(r.id)} aria-label={`選取 ${r.store_name}`} />
                 </td>
-                <td className="px-4 py-3">
-                  <span className="font-medium">{r.store_name}</span>
+               <td className="px-2 py-3 sm:px-4">
+                  <span className="block max-w-[150px] truncate font-medium sm:max-w-none">
+                    {r.store_name}
+                  </span>
                 </td>
                 <td className="hidden px-4 py-3 sm:table-cell">
                   <CategoryBadge category={r.category} />
@@ -151,7 +153,7 @@ export function AdminTable({ rewards }: { rewards: RewardWithTags[] }) {
                 <td className="hidden px-4 py-3 text-xs text-muted sm:table-cell">
                   {r.date_category}
                 </td>
-                <td className="px-4 py-3">
+                <td className="px-2 py-3 sm:px-4">
                   <div className="flex items-center justify-end gap-1">
                     <Link
                       href={`/admin/rewards/${r.id}/edit`}

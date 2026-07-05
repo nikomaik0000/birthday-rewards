@@ -10,6 +10,12 @@ Changed
 - Reduced the table's mobile minimum width so it fits typical phone screens without unnecessary horizontal scrolling
 - Desktop layout, all columns, and table behavior remain unchanged (columns reappear at the `sm` breakpoint and above)
 
+Fixed
+
+- Removed the remaining mobile `min-w-[420px]` constraint that was still forcing horizontal scrolling on narrow phone screens; desktop keeps its `sm:min-w-[760px]` minimum width
+- Reduced horizontal cell padding on mobile for the Checkbox, Store, and Action columns; desktop padding is unchanged via `sm:px-4`
+- Slightly narrowed the Action column on mobile to reclaim additional space; desktop width is unchanged via `sm:w-20`
+
 ### Phase 3A - Rating Display Cleanup
 
 Changed

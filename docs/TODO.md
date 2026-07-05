@@ -10,7 +10,6 @@
 
 ## Medium
 
-- Mobile Table
 - Remove Logo
 - Better Tag UX
 
