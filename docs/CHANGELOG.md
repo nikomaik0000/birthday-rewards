@@ -2,6 +2,23 @@
 
 ## v3.3 (In Progress)
 
+### Phase 3C - Mobile Rewards Table UI
+
+Changed
+
+- Rewards table on mobile now shows a single-line row: ▼ chevron + Store Name (fixed width, truncated) + one-line Promotion Content preview (fills remaining space, truncates with ellipsis) + Favorite icon (far right)
+- Category, Date, Rating, Expiry, Used, and Website Link columns are hidden on mobile (`hidden md:table-cell`) and moved into an expandable accordion panel
+- Removed the mobile `min-w-[880px]` constraint that forced horizontal scrolling; the minimum width now only applies at `md` and above
+- Tapping a row on mobile expands an inline accordion panel below it showing the star rating, category, offer date, full offer content, and a full-width "前往官網" button — no modal or separate page
+- Added a chevron indicator (mobile only) on the store cell that rotates 90° when a row is expanded
+- Added a lightweight ~200ms expand/collapse transition to the accordion panel (CSS grid-rows, no animation library)
+- Favorite button now stops event propagation so tapping it does not also expand/collapse the row
+- Row click handler only toggles the accordion on mobile widths (`< md`); desktop clicks no longer trigger unnecessary state updates
+- Simplified the expanded accordion: removed the duplicated full promotion content (already visible as the collapsed row's preview); rating, category, and date are now shown in a single horizontal row (⭐ Rating · 🏷 Category · 📅 Date) with the "前往官網" button below
+- Store name width increased to 116px (from an earlier 92px pass) so medium-length names have more room before truncating
+- Favorite icon gets a touch of extra left spacing on mobile (`pl-6` vs the default `pl-4`) so the row doesn't feel cramped; desktop padding is unchanged
+- Desktop layout, columns, and behavior are completely unchanged
+
 ### Phase 3B - Admin Mobile Table Optimization
 
 Changed

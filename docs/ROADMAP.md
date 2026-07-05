@@ -32,6 +32,9 @@ Design System
 
 Mobile UX
 
+- Admin table mobile optimization ✅ (Phase 3B)
+- Rewards table mobile optimization ✅ (Phase 3C)
+
 ---
 
 ## v3.6
