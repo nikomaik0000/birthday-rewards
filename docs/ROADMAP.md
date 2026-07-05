@@ -1,51 +1,45 @@
-# Birthday Rewards Roadmap
+# Roadmap
 
-## Sprint 1
+## v3.1 ✅
 
-- [ ] Theme System
-- [ ] Design Tokens
-- [ ] Remove Dark Mode
-- [ ] LocalStorage Favorites
+Theme Removal
 
----
+Local Favorites
 
-## Sprint 2
-
-- [ ] Mobile Table
-- [ ] Remove Logo
-- [ ] Table Optimization
-- [ ] Score UI
+Local Used Status
 
 ---
 
-## Sprint 3
+## v3.2 ✅
 
-- [ ] Tag Autocomplete
-- [ ] Dynamic Tags
-- [ ] Search Optimization
+UI Cleanup
 
 ---
 
-## Sprint 4
+## v3.3
 
-- [ ] Admin UX
-- [ ] Import
-- [ ] Export
-- [ ] Backup
+Admin UX
 
 ---
 
-## Sprint 5
+## v3.4
 
-- [ ] AI Import
-- [ ] OCR
-- [ ] CSV
+Design System
 
 ---
 
-## Future
+## v3.5
 
-- [ ] App Version
-- [ ] Offline Support
-- [ ] PWA
-- [ ] Notifications
+Mobile UX
+
+---
+
+## v3.6
+
+Search Experience
+
+---
+
+## v4.0
+
+Major Feature Update

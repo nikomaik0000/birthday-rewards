@@ -1,14 +1,52 @@
-## v3.1.0 - Phase 1
+# Changelog
 
-### Added
-- Centralized Theme System
-- Visitor favorites stored in localStorage
-- Visitor used status stored in localStorage
+## v3.3 (In Progress)
 
-### Changed
-- Removed Dark Mode support
-- Removed ThemeProvider
-- Removed ThemeToggle
+### Phase 2B - Admin UX
 
-### Fixed
-- Cleaned unused imports and theme-related code
+Added
+
+-
+
+Changed
+
+-
+
+Removed
+
+-
+
+---
+
+## v3.2
+
+### Phase 2A - UI Cleanup
+
+Removed
+
+- Dark mode
+- Store logo
+- Click count
+- Report feature
+- Top clicked dashboard card
+
+Changed
+
+- Simplified sorting
+- Cleaner reward detail page
+- Cleaner admin table
+
+---
+
+## v3.1
+
+### Phase 1
+
+Added
+
+- Local favorites
+- Local used status
+
+Removed
+
+- Dark theme
