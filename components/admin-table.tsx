@@ -129,7 +129,7 @@ export function AdminTable({ rewards }: { rewards: RewardWithTags[] }) {
               <th className="px-4 py-3 text-left font-medium text-muted">店家</th>
               <th className="px-4 py-3 text-left font-medium text-muted">類別</th>
               <th className="px-4 py-3 text-left font-medium text-muted">分數</th>
-              <th className="px-4 py-3 text-left font-medium text-muted">狀態</th>
+              <th className="px-4 py-3 text-left font-medium text-muted">日期</th>
               <th className="w-20 px-4 py-3" />
             </tr>
           </thead>
@@ -149,7 +149,7 @@ export function AdminTable({ rewards }: { rewards: RewardWithTags[] }) {
                   <StarRating score={r.score} />
                 </td>
                 <td className="px-4 py-3 text-xs text-muted">
-                  {r.is_favorite ? "★ 收藏" : "—"}
+                  {r.date_category}
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex items-center justify-end gap-1">
