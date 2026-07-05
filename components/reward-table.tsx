@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 
 // Columns hidden on mobile (< md). Phase 3C keeps 收藏 / 店家 / 優惠內容(preview) visible
 // there; 日期 moves into the expanded accordion instead of showing as its own column.
-const MOBILE_HIDDEN_COLUMN_IDS = new Set(["category", "date_category", "score", "expiry", "used", "link"]);
+const MOBILE_HIDDEN_COLUMN_IDS = new Set(["category","content","date_category", "score", "expiry", "used", "link"]);
 
 // Tailwind's `md` breakpoint (768px) — used to distinguish tap-to-expand (mobile)
 // from the normal detail-page link (desktop) without affecting desktop behavior.
@@ -53,9 +53,15 @@ export function RewardTable({
                 isExpanded && "rotate-90"
               )}
             />
-            <span className="block w-[88px] sm:w-[100px] md:w-auto shrink-0 truncate font-medium">
-              {r.store_name}
-            </span>
+           <div className="min-w-0 flex-1 md:flex-none">
+  <span className="block truncate font-medium">
+    {r.store_name}
+  </span>
+
+  <span className="mt-0.5 block truncate text-xs text-muted md:hidden">
+    {r.content}
+  </span>
+</div>
           </Link>
         );
       },
@@ -208,7 +214,7 @@ export function RewardTable({
                         "px-2 md:px-4 py-3 align-middle",
                         MOBILE_HIDDEN_COLUMN_IDS.has(cell.column.id) && "hidden md:table-cell",
                         cell.column.id === "content" && "min-w-0",
-                        cell.column.id === "favorite" && "pl-4 md:pl-4"
+                        cell.column.id === "favorite" && "pl-2 md:pl-4"
                       )}
                     >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
