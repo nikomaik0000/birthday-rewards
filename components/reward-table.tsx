@@ -150,16 +150,16 @@ export function RewardTable({
     {
       id: "link",
       header: "",
-      cell: ({ row }) => {
-        const r = row.original;
+     cell: ({ row }) => {
+  const r = row.original;
 
-        if (!r.official_url) {
-          return null;
-        }
+  if (!r.official_url) {
+    return null;
+  }
 
-        return (
-          <a
-            href={r.official_url}
+  return (
+    <a
+      href={r.official_url}
             target="_blank"
             rel="noopener noreferrer"
             aria-label={`前往 ${r.store_name} 官網`}
@@ -169,6 +169,7 @@ export function RewardTable({
           </a>
         );
       },
+    },
   ];
 
   const table = useReactTable({ data: rewards, columns, getCoreRowModel: getCoreRowModel() });
