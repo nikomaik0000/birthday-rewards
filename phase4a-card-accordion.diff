@@ -1,0 +1,274 @@
+diff --git a/components/reward-card.tsx b/components/reward-card.tsx
+index dff81d4..e461908 100644
+--- a/components/reward-card.tsx
++++ b/components/reward-card.tsx
+@@ -1,10 +1,11 @@
+ "use client";
+ 
+-import Link from "next/link";
+-import { Heart, Check, ExternalLink } from "lucide-react";
++import { useState } from "react";
++import { Heart, Check, Link2 } from "lucide-react";
+ import { CategoryBadge, TagBadge } from "@/components/tag-badge";
+ import { StarRating } from "@/components/star-rating";
+ import { ExpiryBadge } from "@/components/expiry-badge";
++import { Dialog, DialogContent } from "@/components/ui/dialog";
+ import type { RewardWithTags } from "@/lib/types";
+ import { cn } from "@/lib/utils";
+ 
+@@ -19,97 +20,135 @@ export function RewardCard({
+   // the card shows a plain read-only status instead of a clickable toggle.
+   onToggleUsed?: (id: string, next: boolean) => void;
+ }) {
++  // Phase 4A: cards stay a fixed height (no inline accordion). The whole
++  // card opens a lightweight modal with the full offer text instead —
++  // additional info (e.g. notes, later) belongs in the modal, not in the
++  // card's layout. Favorite, used-toggle, and the two site links keep
++  // their own click behavior via stopPropagation. The full detail page at
++  // /reward/[id] is unchanged and still used for direct links/sharing/sitemap.
++  const [open, setOpen] = useState(false);
++
+   return (
+-    <div
+-      className={cn(
+-        // v2 spacing pass: p-4 → p-5, gap-3 → gap-4 for more breathing room;
+-        // border-radius/shadow stay on the shared rounded-card / shadow-soft
+-        // tokens so every card in the app stays visually consistent.
+-        "group relative flex flex-col gap-4 rounded-card border border-border bg-surface p-5 shadow-soft transition-shadow hover:shadow-pop",
+-        reward.is_used && "opacity-60"
+-      )}
+-    >
+-      <div className="flex items-start justify-between gap-2">
+-        <div className="min-w-0 flex-1">
+-          {reward.official_url ? (
+-            <a
+-              href={reward.official_url}
+-              target="_blank"
+-              rel="noopener noreferrer"
+-              className="relative z-10 flex items-center gap-1 truncate font-medium text-ink hover:underline"
++    <Dialog open={open} onOpenChange={setOpen}>
++      <div
++        role="button"
++        tabIndex={0}
++        aria-haspopup="dialog"
++        aria-label={`查看 ${reward.store_name} 詳情`}
++        onClick={() => setOpen(true)}
++        onKeyDown={(e) => {
++          if (e.key === "Enter" || e.key === " ") {
++            e.preventDefault();
++            setOpen(true);
++          }
++        }}
++        className={cn(
++          // v2 spacing pass: p-4 → p-5, gap-3 → gap-4 for more breathing room;
++          // border-radius/shadow stay on the shared rounded-card / shadow-soft
++          // tokens so every card in the app stays visually consistent.
++          "group relative flex cursor-pointer flex-col gap-4 rounded-card border border-border bg-surface p-5 shadow-soft transition-shadow hover:shadow-pop",
++          reward.is_used && "opacity-60"
++        )}
++      >
++        <div className="flex items-start justify-between gap-2">
++          <div className="min-w-0 flex-1">
++            <span className="block truncate font-medium">{reward.store_name}</span>
++            <div className="mt-1.5 flex items-center gap-2">
++              <CategoryBadge category={reward.category} />
++              <ExpiryBadge expiryDate={reward.expiry_date} />
++            </div>
++          </div>
++
++          <div className="flex shrink-0 items-center gap-1">
++            {reward.official_url && (
++              <a
++                href={reward.official_url}
++                target="_blank"
++                rel="noopener noreferrer"
++                onClick={(e) => e.stopPropagation()}
++                aria-label={`前往 ${reward.store_name} 官網`}
++                className="relative z-10 shrink-0 rounded-full p-1.5 text-muted hover:bg-bg"
++              >
++                <Link2 className="h-4 w-4" />
++              </a>
++            )}
++
++            <button
++              type="button"
++              onClick={(e) => {
++                e.stopPropagation();
++                onToggleFavorite(reward.id, !reward.is_favorite);
++              }}
++              aria-label={reward.is_favorite ? "取消收藏" : "加入收藏"}
++              aria-pressed={reward.is_favorite}
++              className="relative z-10 shrink-0 rounded-full p-1.5 text-muted hover:bg-bg"
+             >
+-              <span className="truncate">{reward.store_name}</span>
+-              <ExternalLink className="h-3 w-3 shrink-0 text-muted" />
+-            </a>
+-          ) : (
+-            <span className="truncate font-medium">{reward.store_name}</span>
+-          )}
+-          <div className="mt-1.5 flex items-center gap-2">
+-            <CategoryBadge category={reward.category} />
+-            <ExpiryBadge expiryDate={reward.expiry_date} />
++              <Heart className={cn("h-4 w-4", reward.is_favorite && "fill-accent-coffee text-accent-coffee")} />
++            </button>
+           </div>
+         </div>
+ 
+-        <button
+-          type="button"
+-          onClick={() => onToggleFavorite(reward.id, !reward.is_favorite)}
+-          aria-label={reward.is_favorite ? "取消收藏" : "加入收藏"}
+-          aria-pressed={reward.is_favorite}
+-          className="relative z-10 shrink-0 rounded-full p-1.5 text-muted hover:bg-bg"
+-        >
+-          <Heart className={cn("h-4 w-4", reward.is_favorite && "fill-accent-coffee text-accent-coffee")} />
+-        </button>
+-      </div>
++        <p className="line-clamp-3 text-sm text-ink/90">{reward.content}</p>
+ 
+-      <p className="line-clamp-3 text-sm text-ink/90">{reward.content}</p>
++        {reward.tags.length > 0 && (
++          <div className="flex flex-wrap gap-1.5">
++            {reward.tags.map((t) => (
++              <TagBadge key={t.id} name={t.name} colorHex={t.color_hex} />
++            ))}
++          </div>
++        )}
+ 
+-      {reward.tags.length > 0 && (
+-        <div className="flex flex-wrap gap-1.5">
+-          {reward.tags.map((t) => (
+-            <TagBadge key={t.id} name={t.name} colorHex={t.color_hex} />
+-          ))}
++        <div className="mt-auto flex items-center justify-between pt-1">
++          <StarRating score={reward.score} />
++          {onToggleUsed ? (
++            <button
++              type="button"
++              onClick={(e) => {
++                e.stopPropagation();
++                onToggleUsed(reward.id, !reward.is_used);
++              }}
++              aria-pressed={reward.is_used}
++              className={cn(
++                "relative z-10 flex items-center gap-1 rounded-pill border px-2.5 py-1 text-xs font-medium transition-colors",
++                reward.is_used
++                  ? "border-accent-green bg-accent-green/15 text-accent-green"
++                  : "border-border text-muted"
++              )}
++            >
++              <Check className="h-3 w-3" />
++              {reward.is_used ? "已兌換" : "未使用"}
++            </button>
++          ) : (
++            // Read-only status for general visitors (v2: no public write access)
++            <span
++              className={cn(
++                "flex items-center gap-1 rounded-pill border px-2.5 py-1 text-xs font-medium",
++                reward.is_used
++                  ? "border-accent-green bg-accent-green/15 text-accent-green"
++                  : "border-border text-muted"
++              )}
++            >
++              <Check className="h-3 w-3" />
++              {reward.is_used ? "已兌換" : "未使用"}
++            </span>
++          )}
+         </div>
+-      )}
+-
+-      <div className="mt-auto flex items-center justify-between pt-1">
+-        <StarRating score={reward.score} />
+-        {onToggleUsed ? (
+-          <button
+-            type="button"
+-            onClick={() => onToggleUsed(reward.id, !reward.is_used)}
+-            aria-pressed={reward.is_used}
+-            className={cn(
+-              "relative z-10 flex items-center gap-1 rounded-pill border px-2.5 py-1 text-xs font-medium transition-colors",
+-              reward.is_used
+-                ? "border-accent-green bg-accent-green/15 text-accent-green"
+-                : "border-border text-muted"
+-            )}
+-          >
+-            <Check className="h-3 w-3" />
+-            {reward.is_used ? "已兌換" : "未使用"}
+-          </button>
+-        ) : (
+-          // Read-only status for general visitors (v2: no public write access)
+-          <span
+-            className={cn(
+-              "flex items-center gap-1 rounded-pill border px-2.5 py-1 text-xs font-medium",
+-              reward.is_used
+-                ? "border-accent-green bg-accent-green/15 text-accent-green"
+-                : "border-border text-muted"
+-            )}
+-          >
+-            <Check className="h-3 w-3" />
+-            {reward.is_used ? "已兌換" : "未使用"}
+-          </span>
+-        )}
+       </div>
+ 
+-      <Link
+-        href={`/reward/${reward.id}`}
+-        className="absolute inset-0"
+-        aria-label={`查看 ${reward.store_name} 詳情`}
+-        tabIndex={-1}
+-      />
+-    </div>
++      <DialogContent title={reward.store_name}>
++        <div className="mb-3 flex flex-wrap items-center gap-2">
++          <CategoryBadge category={reward.category} />
++          <ExpiryBadge expiryDate={reward.expiry_date} />
++        </div>
++        <p className="whitespace-pre-wrap text-sm leading-relaxed text-ink/90">{reward.content}</p>
++        {reward.tags.length > 0 && (
++          <div className="mt-4 flex flex-wrap gap-1.5">
++            {reward.tags.map((t) => (
++              <TagBadge key={t.id} name={t.name} colorHex={t.color_hex} />
++            ))}
++          </div>
++        )}
++      </DialogContent>
++    </Dialog>
+   );
+ }
+diff --git a/docs/CHANGELOG.md b/docs/CHANGELOG.md
+index 8cb8e07..a1e3c50 100644
+--- a/docs/CHANGELOG.md
++++ b/docs/CHANGELOG.md
+@@ -1,6 +1,20 @@
+ # Changelog
+ 
+-## v3.3 (In Progress)
++## v4.0 (In Progress)
++
++### Phase 4A - Card Modal (Replaces Detail Page Navigation)
++
++Changed
++
++- Reward cards (grid view) no longer link to the `/reward/[id]` detail page on click; the entire card now opens a lightweight modal instead
++- Cards keep a fixed height at all times — the 3-line content clamp is never removed, so the grid layout stays clean and consistent on both desktop and mobile
++- Removed the chevron indicator — the whole card is already the click target, so a separate arrow was redundant
++- Store name is now plain text instead of a hyperlink; the top-right link icon is the single, unambiguous way to visit the official site (avoids two navigation targets pointing at the same URL)
++- The modal (built on the existing `Dialog`/`DialogContent` components already used elsewhere in the app) shows the reward's full, untruncated content plus its category/expiry badges and tags; it is reserved for additional information going forward (e.g. notes) and is intentionally lightweight — no navigation, no notes/history/admin editing
++- A small link icon now sits beside the favorite icon in the top-right corner of the card; clicking it opens the official website directly in a new tab (only shown when the reward has an `official_url`)
++- Favorite button, used-toggle button, the store-name official-site link, and the top-right link icon all stop event propagation so they keep their own click behavior and never open the modal
++- The `/reward/[id]` detail page is unchanged and still reachable directly (deep links, sharing, sitemap); it's just no longer linked from the card grid
++- No changes to search, filters, sorting, favorites, used-status, or admin functionality
+ 
+ ### Phase 3D - Dashboard Summary Simplification
+ 
+diff --git a/docs/TODO.md b/docs/TODO.md
+index 819e941..d0bb432 100644
+--- a/docs/TODO.md
++++ b/docs/TODO.md
+@@ -2,6 +2,7 @@
+ 
+ ## Done
+ 
++- Card Modal (Phase 4A) — reward cards stay a fixed height and open a lightweight modal (full content + tags) instead of linking to the detail page; official-site visit moved to a small link icon beside Favorite; used-toggle/favorite/link-icon keep independent click behavior; detail page kept for direct links/sharing/sitemap
+ - Dashboard Summary Simplification (Phase 3D) — removed Total Rewards, Average Score, and Highest-rated Store cards; single row of 店家數/收藏/已使用/未使用, category summary unchanged
+ - Mobile Rewards Table UI (Phase 3C) — single-line row (store + promo preview + favorite), accordion detail, no horizontal scroll
+ 

@@ -4,12 +4,9 @@ export const CATEGORIES: Category[] = ["飲料", "食物", "美妝", "其他"];
 
 export const DATE_CATEGORIES: DateCategory[] = ["月底", "次月底", "其他"];
 
-export const CATEGORY_TAG_CLASSES: Record<Category, string> = {
-  飲料: "bg-tag-drink text-tag-drink-fg",
-  食物: "bg-tag-food text-tag-food-fg",
-  美妝: "bg-tag-beauty text-tag-beauty-fg",
-  其他: "bg-tag-other text-tag-other-fg",
-};
+// Phase 4B: every badge (category, validity period, redemption tags) now
+// shares this one style — no more per-category or per-tag colors.
+export const BADGE_CLASSES = "bg-[#F9F9F9] text-[#666666] border border-[#EFEFEF] shadow-sm";
 
 // v2 UI requirement: every free-form tag must always have a soft pastel
 // background (never white). This palette is intentionally low-saturation

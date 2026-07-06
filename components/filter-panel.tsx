@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { SlidersHorizontal, ChevronDown } from "lucide-react";
+import { SlidersHorizontal, ChevronDown, Star } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
@@ -100,7 +100,10 @@ export function FilterPanel({
                     checked={filters.scores.includes(s)}
                     onCheckedChange={() => onChange({ ...filters, scores: toggleInArray(filters.scores, s) })}
                   />
-                  ⭐ {s}/5
+                  <span className="inline-flex items-center gap-1">
+                    <Star className="h-3.5 w-3.5 text-accent-coffee" aria-hidden="true" />
+                    {s}/5
+                  </span>
                 </label>
               ))}
             </div>

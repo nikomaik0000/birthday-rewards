@@ -3,7 +3,7 @@
 import { Fragment, useState } from "react";
 import Link from "next/link";
 import { useReactTable, getCoreRowModel, flexRender, type ColumnDef } from "@tanstack/react-table";
-import { Heart, Check, ExternalLink, ChevronRight } from "lucide-react";
+import { Heart, Check, ExternalLink, ChevronRight, Tag, Calendar } from "lucide-react";
 import { CategoryBadge } from "@/components/tag-badge";
 import { StarRating } from "@/components/star-rating";
 import { ExpiryBadge } from "@/components/expiry-badge";
@@ -250,10 +250,10 @@ export function RewardTable({
                           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-ink/90">
                             <StarRating score={r.score} />
                             <span className="inline-flex items-center gap-1">
-                              🏷 <CategoryBadge category={r.category} />
+                              <Tag className="h-3.5 w-3.5 text-muted" aria-hidden="true" /> <CategoryBadge category={r.category} />
                             </span>
                             <span className="inline-flex items-center gap-1">
-                              📅 {r.date_category}
+                              <Calendar className="h-3.5 w-3.5 text-muted" aria-hidden="true" /> {r.date_category}
                             </span>
                           </div>
                           {r.official_url && (
