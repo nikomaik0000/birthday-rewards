@@ -152,25 +152,6 @@ export function RewardTable({
       header: "",
       cell: ({ row }) => {
         const r = row.original;
-        cell: ({ row }) => {
-          const r = row.original;
-
-          return (
-            <div className="flex h-6 w-6 items-center justify-center">
-              {r.official_url && (
-                <a
-                  href={r.official_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={`前往 ${r.store_name} 官網`}
-                  className="rounded-full p-1 text-muted hover:bg-bg"
-                >
-                  <ExternalLink className="h-3.5 w-3.5" />
-                </a>
-              )}
-            </div>
-          );
-        }
         return (
           <a
             href={r.official_url}
