@@ -2,6 +2,18 @@
 
 ## v3.3 (In Progress)
 
+### Phase 3D - Dashboard Summary Simplification
+
+Removed
+
+- Total Rewards, Average Score, and Highest-rated Store cards from the dashboard summary
+
+Changed
+
+- Dashboard summary now shows a single row of four cards: 店家數, 收藏, 已使用, 未使用
+- Result counter simplified from "共 N 筆優惠" to "N 筆"
+- Removed the "各類別數量" title above the category summary row; increased its vertical padding and switched its background to 90% opacity (`bg-surface/90`, no border) so it reads as a lighter section beneath the summary cards rather than another card
+
 ### Phase 3C - Mobile Rewards Table UI
 
 Changed

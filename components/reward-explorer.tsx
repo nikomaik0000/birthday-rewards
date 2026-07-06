@@ -200,7 +200,7 @@ export function RewardExplorer({
           </div>
         </div>
         <div className="mt-2 flex items-center justify-between">
-          <span className="text-xs text-muted">共 {sorted.length} 筆優惠</span>
+          <span className="text-xs text-muted">{sorted.length} 筆</span>
           <div className="flex items-center gap-2">
             <SortMenu value={sort} onChange={setSort} />
             <ViewToggle mode={viewMode} onChange={setViewMode} />

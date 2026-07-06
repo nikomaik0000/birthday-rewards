@@ -1,0 +1,79 @@
+diff --git a/components/dashboard-stats.tsx b/components/dashboard-stats.tsx
+index 4ae3563..c2bb0c6 100644
+--- a/components/dashboard-stats.tsx
++++ b/components/dashboard-stats.tsx
+@@ -1,16 +1,12 @@
+ import type { DashboardStats } from "@/lib/types";
+ import { CATEGORIES } from "@/lib/constants";
+-import { StarRating } from "@/components/star-rating";
+ 
+ export function DashboardStatsPanel({ stats }: { stats: DashboardStats }) {
+   const cards: { label: string; value: React.ReactNode }[] = [
+     { label: "店家數", value: stats.totalStores },
+-    { label: "優惠總數", value: stats.totalRewards },
+     { label: "收藏", value: stats.favoriteCount },
+     { label: "已使用", value: stats.usedCount },
+     { label: "未使用", value: stats.unusedCount },
+-    { label: "平均分數", value: <StarRating score={Math.round(stats.averageScore)} /> },
+-    { label: "最高分店家", value: stats.topScoreStore ?? "—" },
+   ];
+ 
+   return (
+@@ -27,8 +23,7 @@ export function DashboardStatsPanel({ stats }: { stats: DashboardStats }) {
+         ))}
+       </div>
+ 
+-      <div className="rounded-card border border-border bg-surface px-4 py-3">
+-        <div className="mb-2 text-xs text-muted">各類別數量</div>
++      <div className="rounded-card bg-surface/90 px-4 py-4">
+         <div className="flex flex-wrap gap-x-6 gap-y-2">
+           {CATEGORIES.map((c) => (
+             <div key={c} className="flex items-center gap-2 text-sm">
+diff --git a/components/reward-explorer.tsx b/components/reward-explorer.tsx
+index 8855091..dcba206 100644
+--- a/components/reward-explorer.tsx
++++ b/components/reward-explorer.tsx
+@@ -200,7 +200,7 @@ export function RewardExplorer({
+           </div>
+         </div>
+         <div className="mt-2 flex items-center justify-between">
+-          <span className="text-xs text-muted">共 {sorted.length} 筆優惠</span>
++          <span className="text-xs text-muted">{sorted.length} 筆</span>
+           <div className="flex items-center gap-2">
+             <SortMenu value={sort} onChange={setSort} />
+             <ViewToggle mode={viewMode} onChange={setViewMode} />
+diff --git a/docs/CHANGELOG.md b/docs/CHANGELOG.md
+index b049edf..8cb8e07 100644
+--- a/docs/CHANGELOG.md
++++ b/docs/CHANGELOG.md
+@@ -2,6 +2,18 @@
+ 
+ ## v3.3 (In Progress)
+ 
++### Phase 3D - Dashboard Summary Simplification
++
++Removed
++
++- Total Rewards, Average Score, and Highest-rated Store cards from the dashboard summary
++
++Changed
++
++- Dashboard summary now shows a single row of four cards: 店家數, 收藏, 已使用, 未使用
++- Result counter simplified from "共 N 筆優惠" to "N 筆"
++- Removed the "各類別數量" title above the category summary row; increased its vertical padding and switched its background to 90% opacity (`bg-surface/90`, no border) so it reads as a lighter section beneath the summary cards rather than another card
++
+ ### Phase 3C - Mobile Rewards Table UI
+ 
+ Changed
+diff --git a/docs/TODO.md b/docs/TODO.md
+index f3e7353..819e941 100644
+--- a/docs/TODO.md
++++ b/docs/TODO.md
+@@ -2,6 +2,7 @@
+ 
+ ## Done
+ 
++- Dashboard Summary Simplification (Phase 3D) — removed Total Rewards, Average Score, and Highest-rated Store cards; single row of 店家數/收藏/已使用/未使用, category summary unchanged
+ - Mobile Rewards Table UI (Phase 3C) — single-line row (store + promo preview + favorite), accordion detail, no horizontal scroll
+ 
+ ---
