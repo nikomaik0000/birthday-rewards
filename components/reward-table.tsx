@@ -152,6 +152,11 @@ export function RewardTable({
       header: "",
       cell: ({ row }) => {
         const r = row.original;
+
+        if (!r.official_url) {
+          return null;
+        }
+
         return (
           <a
             href={r.official_url}
@@ -164,7 +169,6 @@ export function RewardTable({
           </a>
         );
       },
-    },
   ];
 
   const table = useReactTable({ data: rewards, columns, getCoreRowModel: getCoreRowModel() });
