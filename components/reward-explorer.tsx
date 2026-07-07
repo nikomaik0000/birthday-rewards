@@ -168,10 +168,19 @@ export function RewardExplorer({
 
   return (
     <div className="mx-auto max-w-6xl px-4 pb-24 pt-4 sm:px-6">
-      <header className="sticky top-0 z-20 -mx-4 mb-5 border-b border-border bg-bg/90 px-4 pb-3 pt-2 backdrop-blur sm:-mx-6 sm:px-6">
-        <div className="mb-3 flex items-center justify-between gap-3">
-          <h1 className="text-title font-semibold">生日優惠整理</h1>
-          <div className="flex items-center gap-2">
+      <header className="sticky top-0 z-20 -mx-4 mb-6 border-b border-border bg-bg/90 px-4 pb-4 pt-3 backdrop-blur sm:-mx-6 sm:px-6">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          {/* Phase 4C: compact two-line brand lockup — an elegant serif
+              wordmark as the primary title, with a small muted Chinese
+              subtitle underneath for clarity. Tight leading keeps the
+              header from growing taller despite the extra line. */}
+          <div className="min-w-0 leading-tight">
+            <h1 className="truncate font-serif text-2xl font-normal tracking-wordmark text-ink">
+              Birthday Rewards
+            </h1>
+            <p className="truncate text-xs text-muted">生日優惠整理</p>
+          </div>
+          <div className="flex shrink-0 items-center gap-2">
             <Button variant="ghost" size="icon" onClick={() => setShowStats((v) => !v)} aria-label="切換儀表板">
               <BarChart3 className="h-4 w-4" />
             </Button>
@@ -188,23 +197,21 @@ export function RewardExplorer({
           </div>
         </div>
         <SearchBar value={filters.query} onChange={(query) => setFilters((f) => ({ ...f, query }))} />
-        <div className="mt-3 flex items-center justify-between gap-2">
-          <div className="flex-1">
-            <FilterPanel
-              filters={filters}
-              onChange={setFilters}
-              allTags={allTags}
-              usedTagIds={usedTagIds}
-              activeCount={activeFilterCount}
-            />
-          </div>
+        {/* Phase 4C: filter toggle and result count now share one row/border
+            instead of two separate rows. */}
+        <div className="mt-4">
+          <FilterPanel
+            filters={filters}
+            onChange={setFilters}
+            allTags={allTags}
+            usedTagIds={usedTagIds}
+            activeCount={activeFilterCount}
+            resultCount={sorted.length}
+          />
         </div>
-        <div className="mt-2 flex items-center justify-between">
-          <span className="text-xs text-muted">{sorted.length} 筆</span>
-          <div className="flex items-center gap-2">
-            <SortMenu value={sort} onChange={setSort} />
-            <ViewToggle mode={viewMode} onChange={setViewMode} />
-          </div>
+        <div className="mt-3 flex items-center justify-end gap-2">
+          <SortMenu value={sort} onChange={setSort} />
+          <ViewToggle mode={viewMode} onChange={setViewMode} />
         </div>
       </header>
 

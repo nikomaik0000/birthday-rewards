@@ -1,5 +1,5 @@
 import type { Config } from "tailwindcss";
-import { colors, borderRadius, boxShadow, typography, keyframes, animation } from "./lib/theme";
+import { colors, borderRadius, boxShadow, typography, keyframes, animation, layout } from "./lib/theme";
 
 // This file wires the centralized design tokens in lib/theme.ts into
 // Tailwind. To change a color, radius, shadow, font, or animation across
@@ -21,8 +21,15 @@ const config: Config = {
         tag: colors.tag,
         border: colors.border,
       },
-      fontFamily: { sans: [...typography.fontFamily.sans] },
+      fontFamily: {
+        sans: [...typography.fontFamily.sans],
+        serif: [...typography.fontFamily.serif],
+      },
       fontSize: typography.fontSize,
+      letterSpacing: typography.letterSpacing,
+      minHeight: {
+        card: layout.cardMinHeight,
+      },
       spacing: {
         // 8px grid helpers beyond Tailwind defaults are already covered by default scale
       },

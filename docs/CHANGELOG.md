@@ -98,6 +98,26 @@ Removed
 
 ---
 
+## v3.4
+
+### Phase 4C - Homepage Visual Refresh
+
+Changed
+
+- Header: compact two-line brand lockup — serif "Birthday Rewards" wordmark (light weight, generous letter-spacing) as the primary title, with a small muted "生日優惠整理" subtitle underneath
+- Search bar: taller, more rounded, more padding, softer border for a cleaner look
+- Filter bar: result count now shares the same bordered row as the "篩選" toggle instead of a separate line
+- Sort menu / view toggle: view toggle's active state now uses a soft coffee tint instead of dark ink; spacing tidied
+- Reward card: larger store name, thin divider under the title (softened border token), description directly below, notes shown only when present in a lighter tone than the description (no more reserved blank line), badge row + rating moved together to the bottom, Link/Favorite grouped as icon buttons with Used kept as a labeled pill (clearer at a glance) in the top-right corner
+
+Added
+
+- `lib/theme.ts`: additive `typography.fontFamily.serif` token (web-safe serif stack, not a Google Fonts import) for the header wordmark only; `typography.letterSpacing.wordmark` and `layout.cardMinHeight` tokens, wired into `tailwind.config.ts`, replacing what would otherwise have been arbitrary one-off values (`tracking-[0.12em]`, `min-h-[248px]`)
+
+No changes to search/filter/sort logic, data fetching, or favorite/used toggle behavior — this phase is UI/markup only.
+
+---
+
 ## v3.2
 
 ### Phase 2A - UI Cleanup

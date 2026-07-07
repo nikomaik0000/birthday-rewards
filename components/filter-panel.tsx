@@ -21,12 +21,17 @@ export function FilterPanel({
   allTags,
   usedTagIds,
   activeCount,
+  resultCount,
 }: {
   filters: RewardFilters;
   onChange: (filters: RewardFilters) => void;
   allTags: TagRow[];
   usedTagIds: Set<string>;
   activeCount: number;
+  // Phase 4C: shown inline in the collapsed header row instead of a
+  // separate line below, so the filter bar and result count share one
+  // bordered row.
+  resultCount: number;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -52,7 +57,10 @@ export function FilterPanel({
             </span>
           )}
         </span>
-        <ChevronDown className={cn("h-4 w-4 text-muted transition-transform", open && "rotate-180")} />
+        <span className="flex items-center gap-2">
+          <span className="text-xs text-muted">{resultCount} 筆</span>
+          <ChevronDown className={cn("h-4 w-4 text-muted transition-transform", open && "rotate-180")} />
+        </span>
       </button>
 
       {open && (

@@ -44,6 +44,12 @@ export const borderRadius = {
   pill: "999px",
 } as const;
 
+export const layout = {
+  // Phase 4C: fixed reward-card height, centralized instead of an inline
+  // arbitrary value — every RewardCard references this one token.
+  cardMinHeight: "248px",
+} as const;
+
 export const boxShadow = {
   soft: "0 1px 2px rgba(0,0,0,0.04), 0 1px 8px rgba(0,0,0,0.03)",
   pop: "0 4px 24px rgba(0,0,0,0.08)",
@@ -52,6 +58,10 @@ export const boxShadow = {
 export const typography = {
   fontFamily: {
     sans: ["Inter", "Noto Sans TC", "system-ui", "sans-serif"],
+    // Phase 4C: brand wordmark only (the "Birthday Rewards" header title).
+    // Web-safe serif stack — deliberately not a next/font/google import, so
+    // the wordmark never depends on an external font fetch.
+    serif: ["Georgia", "Cambria", "Times New Roman", "serif"],
   },
   fontSize: {
     list: ["12px", { lineHeight: "1.6" }] as [string, { lineHeight: string }],
@@ -59,6 +69,10 @@ export const typography = {
       string,
       { lineHeight: string; letterSpacing: string },
     ],
+  },
+  letterSpacing: {
+    // Phase 4C: generous tracking for the light-weight serif wordmark.
+    wordmark: "0.12em",
   },
 } as const;
 
