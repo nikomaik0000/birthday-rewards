@@ -36,7 +36,7 @@ export function SortMenu({ value, onChange }: { value: SortKey; onChange: (v: So
               className={cn(
                 "cursor-pointer rounded-md px-3 py-2 text-sm outline-none",
                 "data-[highlighted]:bg-bg",
-                opt.value === value && "font-medium text-accent-coffee"
+                opt.value === value && "bg-accentSoft font-medium text-ink"
               )}
             >
               {opt.label}

@@ -24,6 +24,11 @@ export const colors = {
     green: "#8FA68E",
     blue: "#8CA3B5",
   },
+  // Phase 4C v2: one consistent neutral accent for active/selected/toggled
+  // UI states across the whole site (view toggle, selected filter chips,
+  // active pills) — replaces the previously mixed dark-ink / coffee-tinted
+  // active states.
+  accentSoft: "#DDD5CC",
   tag: {
     drink: "#DCEBDD",
     "drink-fg": "#4C6B52",
@@ -37,6 +42,13 @@ export const colors = {
     "expiring-fg": "#7A4A1D",
   },
   border: "#EAE6DD",
+  // Phase 4C v2: unified badge border/text, and the reward-card divider,
+  // which intentionally shares the badge border color — both are a touch
+  // lighter than the general-purpose `border` token above.
+  badgeBorder: "#EFEAE4",
+  badgeText: "#BCAE9F",
+  divider: "#EFEAE4",
+  searchBackground: "#F2EFEB",
 } as const;
 
 export const borderRadius = {
@@ -47,11 +59,14 @@ export const borderRadius = {
 export const layout = {
   // Phase 4C: fixed reward-card height, centralized instead of an inline
   // arbitrary value — every RewardCard references this one token.
-  cardMinHeight: "248px",
+  // Phase 4C v2: bumped up to fit the more generous internal spacing
+  // (padding, divider/description/notes rhythm) added this pass.
+  cardMinHeight: "328px",
 } as const;
 
 export const boxShadow = {
-  soft: "0 1px 2px rgba(0,0,0,0.04), 0 1px 8px rgba(0,0,0,0.03)",
+  // Phase 4C v2: slightly softer/lighter than before for a cleaner feel.
+  soft: "0 1px 2px rgba(0,0,0,0.03), 0 1px 6px rgba(0,0,0,0.02)",
   pop: "0 4px 24px rgba(0,0,0,0.08)",
 } as const;
 
@@ -69,10 +84,23 @@ export const typography = {
       string,
       { lineHeight: string; letterSpacing: string },
     ],
+    // Phase 4C v2: reward-card store name — serif, 20px, 1.3 line-height,
+    // 0.075em tracking (same tracking value as the app's general interface
+    // text — see letterSpacing.body below).
+    storeName: ["20px", { lineHeight: "1.3", letterSpacing: "0.075em" }] as [
+      string,
+      { lineHeight: string; letterSpacing: string },
+    ],
   },
   letterSpacing: {
     // Phase 4C: generous tracking for the light-weight serif wordmark.
-    wordmark: "0.12em",
+    // Phase 4C v2: widened further per feedback; the wordmark keeps its
+    // own spacing, distinct from the general interface-text value below.
+    wordmark: "0.2em",
+    // Phase 4C v2: the consistent typography rhythm applied to normal
+    // interface text app-wide (see the `body` rule in globals.css) — store
+    // names, descriptions, notes, search/filter/sort UI, buttons, badges.
+    body: "0.075em",
   },
 } as const;
 

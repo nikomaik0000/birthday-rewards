@@ -100,6 +100,27 @@ Removed
 
 ## v3.4
 
+### Phase 4C v2 - Visual Refinement Pass
+
+A refinement pass on top of Phase 4C, per direct design feedback. UI/markup and theme tokens only — no functional changes.
+
+Changed
+
+- Header: Chinese subtitle removed — the English "BIRTHDAY REWARDS" wordmark is now the only header title (uppercase, serif, larger, wider tracking), for a calmer single-element header
+- Global typography: `letter-spacing: 0.075em` now applies to all normal interface text site-wide (store names, descriptions, notes, search/filter/sort UI, buttons, badges) via a `tracking-body` utility on `<body>`, so it's inherited everywhere instead of set per-component; the header wordmark keeps its own wider `tracking-wordmark` value
+- Reward card: more internal breathing room — larger padding, more space around the divider, description now explicitly 14px/1.5 line-height, notes pushed further below the description (visibly more than one line-height) and rendered in a lighter tone, more space before the badge/rating row; card `min-height` increased to fit the extra spacing
+- Grid: increased gap between cards (also increases row gap, since CSS grid `gap` applies to both axes)
+- Search bar: placeholder text removed (icon-only), border radius now matches the filter bar exactly, background uses the new `searchBackground` token — search bar and filter bar now read as the same design component
+- Badges: `BADGE_CLASSES` border/text now reference the centralized `badgeBorder` / `badgeText` tokens instead of one-off hex values, so every badge (category, expiry, tag) stays perfectly consistent
+- Unified all "active/selected" UI accents (view toggle, filter's active-count badge, selected tag chip ring, used-status filter toggle, selected sort option) onto one neutral `accentSoft` token, replacing the previously mixed dark-ink and coffee-tinted active states
+- Store name: serif, 20px, light weight, 1.3 line-height (via the `storeName` token)
+- Card divider now uses the dedicated `divider` token (same value as the badge border) instead of the general-purpose border color
+- Card shadow softened slightly for a cleaner look
+
+Added
+
+- `lib/theme.ts`: `colors.accentSoft`, `colors.badgeBorder`, `colors.badgeText`, `colors.divider`, `colors.searchBackground`; `typography.letterSpacing.body`; `typography.fontSize.storeName` — all wired into `tailwind.config.ts` and referenced by class name in components, no hardcoded hex added anywhere
+
 ### Phase 4C - Homepage Visual Refresh
 
 Changed

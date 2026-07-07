@@ -6,7 +6,9 @@ export const DATE_CATEGORIES: DateCategory[] = ["月底", "次月底", "其他"]
 
 // Phase 4B: every badge (category, validity period, redemption tags) now
 // shares this one style — no more per-category or per-tag colors.
-export const BADGE_CLASSES = "bg-[#F9F9F9] text-[#666666] border border-[#EFEFEF] shadow-sm";
+// Phase 4C v2: badge border/text now reference the centralized
+// badgeBorder / badgeText theme tokens instead of one-off hex values.
+export const BADGE_CLASSES = "bg-surface text-badgeText border border-badgeBorder shadow-sm";
 
 // v2 UI requirement: every free-form tag must always have a soft pastel
 // background (never white). This palette is intentionally low-saturation

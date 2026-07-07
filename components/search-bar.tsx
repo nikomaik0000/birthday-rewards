@@ -16,8 +16,10 @@ export function SearchBar({
       <Input
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder="搜尋店家、優惠內容、標籤、心得..."
-        className="h-14 rounded-pill border-transparent bg-surface pl-12 pr-11 text-sm shadow-soft"
+        // Phase 4C v2: no placeholder copy — the search icon alone signals
+        // intent, per the mockup.
+        placeholder=""
+        className="h-14 rounded-card border-transparent bg-searchBackground pl-12 pr-11 text-sm shadow-soft"
         aria-label="搜尋優惠"
       />
       {value && (

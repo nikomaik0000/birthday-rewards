@@ -168,18 +168,13 @@ export function RewardExplorer({
 
   return (
     <div className="mx-auto max-w-6xl px-4 pb-24 pt-4 sm:px-6">
-      <header className="sticky top-0 z-20 -mx-4 mb-6 border-b border-border bg-bg/90 px-4 pb-4 pt-3 backdrop-blur sm:-mx-6 sm:px-6">
+      <header className="sticky top-0 z-20 -mx-4 mb-8 border-b border-border bg-bg/90 px-4 pb-4 pt-3 backdrop-blur sm:-mx-6 sm:px-6">
         <div className="mb-4 flex items-center justify-between gap-3">
-          {/* Phase 4C: compact two-line brand lockup — an elegant serif
-              wordmark as the primary title, with a small muted Chinese
-              subtitle underneath for clarity. Tight leading keeps the
-              header from growing taller despite the extra line. */}
-          <div className="min-w-0 leading-tight">
-            <h1 className="truncate font-serif text-2xl font-normal tracking-wordmark text-ink">
-              Birthday Rewards
-            </h1>
-            <p className="truncate text-xs text-muted">生日優惠整理</p>
-          </div>
+          {/* Phase 4C v2: Chinese subtitle removed per feedback — a simpler,
+              English-wordmark-only header for a calmer, more editorial feel. */}
+          <h1 className="min-w-0 flex-1 truncate font-serif text-3xl font-light uppercase tracking-wordmark text-ink">
+            Birthday Rewards
+          </h1>
           <div className="flex shrink-0 items-center gap-2">
             <Button variant="ghost" size="icon" onClick={() => setShowStats((v) => !v)} aria-label="切換儀表板">
               <BarChart3 className="h-4 w-4" />
@@ -230,7 +225,7 @@ export function RewardExplorer({
           onToggleUsed={handleToggleUsed}
         />
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {visible.map((r) => (
             <RewardCard
               key={r.id}

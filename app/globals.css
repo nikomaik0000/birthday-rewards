@@ -8,7 +8,11 @@
   }
 
   body {
-    @apply bg-bg text-ink antialiased;
+    /* Phase 4C v2: consistent typography rhythm — 0.075em tracking across
+       normal interface text (store names, descriptions, buttons, badges,
+       etc). The header wordmark overrides this locally with its own wider
+       tracking-wordmark value. */
+    @apply bg-bg text-ink antialiased tracking-body;
     font-feature-settings: "cv11", "ss01";
   }
 

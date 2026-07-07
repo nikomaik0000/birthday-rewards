@@ -38,7 +38,7 @@ export function RewardCard({
         // Phase 4C: fixed min-height (instead of a reserved blank notes
         // line) keeps every card the same height, whether or not a reward
         // has notes — the bottom section is pinned down with mt-auto.
-        "group relative flex min-h-card flex-col rounded-card border border-border bg-surface p-5 shadow-soft transition-shadow hover:shadow-pop",
+        "group relative flex min-h-card flex-col rounded-card border border-border bg-surface p-6 shadow-soft transition-shadow hover:shadow-pop",
         reward.is_used && "opacity-60"
       )}
     >
@@ -46,7 +46,7 @@ export function RewardCard({
           corner. Used stays a labeled pill (easier to read at a glance)
           while Link/Favorite stay icon-only, all aligned on one row. */}
       <div className="flex items-start justify-between gap-2">
-        <span className="min-w-0 flex-1 truncate text-lg font-semibold">{reward.store_name}</span>
+        <span className="min-w-0 flex-1 truncate font-serif text-storeName font-light">{reward.store_name}</span>
 
         <div className="flex shrink-0 items-center gap-1.5">
           {reward.official_url && (
@@ -91,17 +91,18 @@ export function RewardCard({
         </div>
       </div>
 
-      {/* Thin divider under the title — same border token used everywhere
-          else in the app (no darker/one-off color). */}
-      <div className="mt-3 border-t border-border/70" />
+      {/* Thin divider under the title — the dedicated `divider` token (same
+          value as the badge border), with more room above and below for a
+          calmer vertical rhythm. */}
+      <div className="mt-5 border-t border-divider" />
 
-      <p className="mt-3 line-clamp-3 text-sm text-ink/90">{reward.content}</p>
+      <p className="mt-5 line-clamp-3 text-sm leading-normal text-ink/90">{reward.content}</p>
 
-      {/* Notes only render when present — no more reserved blank line.
-          Lighter than the description (text-muted/70) so it doesn't compete
-          for attention. */}
+      {/* Notes only render when present. The gap above them is deliberately
+          larger than the description's own line-height, so they read as a
+          clearly separate, secondary line rather than a continuation. */}
       {reward.notes && (
-        <p className="mt-1 truncate text-xs font-normal text-muted/70">
+        <p className="mt-6 truncate text-xs font-normal text-muted/70">
           <span className="text-muted/50">› </span>
           {reward.notes}
         </p>
@@ -110,7 +111,7 @@ export function RewardCard({
       {/* Badge row: Category → Validity Period → Redemption Method(s), one
           consistently-spaced row, all sharing the same unified badge style —
           now paired with the rating on the same bottom row. */}
-      <div className="mt-auto flex items-end justify-between gap-2 pt-4">
+      <div className="mt-auto flex items-end justify-between gap-2 pt-6">
         <div className="flex flex-wrap items-center gap-1.5">
           <CategoryBadge category={reward.category} />
           <ExpiryBadge expiryDate={reward.expiry_date} />

@@ -18,8 +18,13 @@ const config: Config = {
         ink: colors.ink,
         muted: colors.muted,
         accent: colors.accent,
+        accentSoft: colors.accentSoft,
         tag: colors.tag,
         border: colors.border,
+        badgeBorder: colors.badgeBorder,
+        badgeText: colors.badgeText,
+        divider: colors.divider,
+        searchBackground: colors.searchBackground,
       },
       fontFamily: {
         sans: [...typography.fontFamily.sans],

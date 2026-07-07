@@ -41,7 +41,7 @@ export function FilterPanel({
   const visibleTags = allTags.filter((tag) => usedTagIds.has(tag.id));
 
   return (
-    <div className="rounded-card border border-border bg-surface">
+    <div className="rounded-card bg-searchBackground">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -52,7 +52,7 @@ export function FilterPanel({
           <SlidersHorizontal className="h-4 w-4" />
           篩選
           {activeCount > 0 && (
-            <span className="rounded-pill bg-accent-coffee/20 px-2 py-0.5 text-[11px] text-accent-coffee">
+            <span className="rounded-pill bg-accentSoft px-2 py-0.5 text-[11px] text-ink">
               {activeCount}
             </span>
           )}
@@ -128,7 +128,7 @@ export function FilterPanel({
                     onClick={() => onChange({ ...filters, tagIds: toggleInArray(filters.tagIds, tag.id) })}
                     className={cn(
                       "rounded-pill transition-opacity",
-                      filters.tagIds.includes(tag.id) ? "opacity-100 ring-2 ring-accent-coffee/50" : "opacity-70"
+                      filters.tagIds.includes(tag.id) ? "opacity-100 ring-2 ring-accentSoft" : "opacity-70"
                     )}
                   >
                     <TagBadge name={tag.name} colorHex={tag.color_hex} />
@@ -165,7 +165,7 @@ export function FilterPanel({
                     className={cn(
                       "px-3 py-1 text-xs",
                       filters.usedFilter === v
-                        ? "bg-ink text-bg"
+                        ? "bg-accentSoft text-ink"
                         : "text-muted"
                     )}
                   >

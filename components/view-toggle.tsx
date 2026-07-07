@@ -14,7 +14,7 @@ export function ViewToggle({ mode, onChange }: { mode: ViewMode; onChange: (m: V
         aria-pressed={mode === "card"}
         className={cn(
           "flex h-8 w-8 items-center justify-center rounded-pill transition-colors",
-          mode === "card" ? "bg-accent-coffee/20 text-accent-coffee" : "text-muted"
+          mode === "card" ? "bg-accentSoft text-ink" : "text-muted"
         )}
       >
         <LayoutGrid className="h-4 w-4" />
@@ -26,7 +26,7 @@ export function ViewToggle({ mode, onChange }: { mode: ViewMode; onChange: (m: V
         aria-pressed={mode === "table"}
         className={cn(
           "flex h-8 w-8 items-center justify-center rounded-pill transition-colors",
-          mode === "table" ? "bg-accent-coffee/20 text-accent-coffee" : "text-muted"
+          mode === "table" ? "bg-accentSoft text-ink" : "text-muted"
         )}
       >
         <Rows3 className="h-4 w-4" />
