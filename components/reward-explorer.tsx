@@ -171,8 +171,12 @@ export function RewardExplorer({
       <header className="sticky top-0 z-20 -mx-4 mb-8 border-b border-border bg-bg/90 px-4 pb-4 pt-3 backdrop-blur sm:-mx-6 sm:px-6">
         <div className="mb-4 flex items-center justify-between gap-3">
           {/* Phase 4C v2: Chinese subtitle removed per feedback — a simpler,
-              English-wordmark-only header for a calmer, more editorial feel. */}
-          <h1 className="min-w-0 flex-1 truncate font-serif text-3xl font-light uppercase tracking-wordmark text-ink">
+              English-wordmark-only header for a calmer, more editorial feel.
+              Phase 4D: smaller size + tighter tracking below `sm` so the
+              full wordmark always fits on one line on narrow screens —
+              whitespace-nowrap (not truncate) so it's never cut off with
+              an ellipsis either. */}
+          <h1 className="min-w-0 flex-1 whitespace-nowrap font-serif text-base font-light uppercase tracking-wordmarkCompact text-ink sm:text-3xl sm:tracking-wordmark">
             Birthday Rewards
           </h1>
           <div className="flex shrink-0 items-center gap-2">

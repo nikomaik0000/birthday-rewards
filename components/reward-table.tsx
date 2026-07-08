@@ -1,22 +1,18 @@
 "use client";
 
 import { Fragment, useState } from "react";
-import Link from "next/link";
 import { useReactTable, getCoreRowModel, flexRender, type ColumnDef } from "@tanstack/react-table";
-import { Heart, Check, ExternalLink, ChevronRight, Tag, Calendar } from "lucide-react";
+import { Heart, Check, ExternalLink, ChevronRight } from "lucide-react";
 import { CategoryBadge } from "@/components/tag-badge";
 import { StarRating } from "@/components/star-rating";
 import { ExpiryBadge } from "@/components/expiry-badge";
+import { RewardCardBody } from "@/components/reward-card-body";
 import type { RewardWithTags } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 // Columns hidden on mobile (< md). Phase 3C keeps 收藏 / 店家 / 優惠內容(preview) visible
 // there; 日期 moves into the expanded accordion instead of showing as its own column.
 const MOBILE_HIDDEN_COLUMN_IDS = new Set(["category","content","date_category", "score", "expiry", "used", "link"]);
-
-// Tailwind's `md` breakpoint (768px) — used to distinguish tap-to-expand (mobile)
-// from the normal detail-page link (desktop) without affecting desktop behavior.
-const MOBILE_MEDIA_QUERY = "(max-width: 767px)";
 
 export function RewardTable({
   rewards,
@@ -37,19 +33,14 @@ export function RewardTable({
         const r = row.original;
         const isExpanded = expandedId === r.id;
         return (
-          <Link
-            href={`/reward/${r.id}`}
-            className="flex min-w-0 items-center gap-2"
-            onClick={(e) => {
-              // On mobile the row itself toggles the accordion instead of navigating.
-              if (window.matchMedia(MOBILE_MEDIA_QUERY).matches) {
-                e.preventDefault();
-              }
-            }}
-          >
+          // Phase 4D: no longer a Link to /reward/[id] — clicking anywhere
+          // on the row (see the <tr onClick> below) expands/collapses this
+          // row inline instead, on every screen size. The route itself
+          // still exists for direct URL access / SEO (see sitemap.ts).
+          <div className="flex min-w-0 items-center gap-2">
             <ChevronRight
               className={cn(
-                "h-4 w-4 shrink-0 text-muted transition-transform duration-200 md:hidden",
+                "h-4 w-4 shrink-0 text-muted transition-transform duration-200",
                 isExpanded && "rotate-90"
               )}
             />
@@ -62,7 +53,7 @@ export function RewardTable({
     {r.content}
   </span>
 </div>
-          </Link>
+          </div>
         );
       },
     },
@@ -140,7 +131,15 @@ export function RewardTable({
           );
         }
         return (
-          <button type="button" onClick={() => onToggleUsed(r.id, !r.is_used)} aria-pressed={r.is_used} className={statusClasses}>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleUsed(r.id, !r.is_used);
+            }}
+            aria-pressed={r.is_used}
+            className={statusClasses}
+          >
             <Check className="h-3 w-3" />
             {r.is_used ? "已兌換" : "未使用"}
           </button>
@@ -162,6 +161,7 @@ export function RewardTable({
       href={r.official_url}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
             aria-label={`前往 ${r.store_name} 官網`}
             className="rounded-full p-1 text-muted hover:bg-bg"
           >
@@ -201,13 +201,9 @@ export function RewardTable({
             return (
               <Fragment key={row.id}>
                 <tr
-                  onClick={() => {
-                    if (window.matchMedia(MOBILE_MEDIA_QUERY).matches) {
-                      setExpandedId(isExpanded ? null : r.id);
-                    }
-                  }}
+                  onClick={() => setExpandedId(isExpanded ? null : r.id)}
                   className={cn(
-                    "cursor-pointer border-b border-border last:border-0 hover:bg-bg/40 md:cursor-default",
+                    "cursor-pointer border-b border-border last:border-0 hover:bg-bg/40",
                     row.original.is_used && "opacity-60"
                   )}
                 >
@@ -225,30 +221,27 @@ export function RewardTable({
                     </td>
                   ))}
                 </tr>
-                <tr className="md:hidden">
+                {/* Phase 4D: expand/collapse now works at every breakpoint
+                    (previously mobile-only) — same smooth grid-template-rows
+                    animation as before. Content reuses RewardCardBody, the
+                    same component the Card grid uses, so Grid and Table
+                    show identical reward details. */}
+                <tr>
                   <td colSpan={row.getVisibleCells().length} className="p-0">
                     <div
                       className="grid transition-all duration-200 ease-in-out"
                       style={{ gridTemplateRows: isExpanded ? "1fr" : "0fr" }}
                     >
                       <div className="overflow-hidden">
-                        <div className="space-y-3 border-t border-border bg-bg/40 px-4 py-4">
-                          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-ink/90">
-                            <StarRating score={r.score} />
-                            <span className="inline-flex items-center gap-1">
-                              <Tag className="h-3.5 w-3.5 text-muted" aria-hidden="true" /> <CategoryBadge category={r.category} />
-                            </span>
-                            <span className="inline-flex items-center gap-1">
-                              <Calendar className="h-3.5 w-3.5 text-muted" aria-hidden="true" /> {r.date_category}
-                            </span>
-                          </div>
+                        <div className="border-t border-divider bg-bg/40 px-4 py-4">
+                          <RewardCardBody reward={r} clampDescription={false} />
                           {r.official_url && (
                             <a
                               href={r.official_url}
                               target="_blank"
                               rel="noopener noreferrer"
                               onClick={(e) => e.stopPropagation()}
-                              className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-border bg-white px-4 py-2.5 text-center font-medium text-ink/90 hover:bg-bg"
+                              className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-lg border border-border bg-white px-4 py-2.5 text-center font-medium text-ink/90 hover:bg-bg"
                             >
                               前往官網
                               <ExternalLink className="h-3.5 w-3.5" />

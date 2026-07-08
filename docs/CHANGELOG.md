@@ -2,6 +2,24 @@
 
 ## v4.0 (In Progress)
 
+### Phase 4D - Homepage UX Refinement
+
+UX/behavior refinement on top of Phase 4C. Reuses existing components; no new visual design outside what's described below.
+
+Changed
+
+- Mobile header: the "BIRTHDAY REWARDS" wordmark now stays on one line at every screen size — smaller size + tighter tracking below `sm`, `whitespace-nowrap` instead of `truncate` (no ellipsis, no wrap)
+- Reward card: padding and internal spacing trimmed to remove empty vertical space on shorter cards (typography unchanged); `cardMinHeight` reduced accordingly
+- Desktop table: clicking a row now expands/collapses inline (same accordion + animation the mobile table already used) instead of navigating to `/reward/[id]` — behavior is now identical across all screen sizes
+- Table's expanded row now shows the full description, notes (previously missing entirely), and tag badges, alongside the rating and official-site link that were already there
+
+Added
+
+- `components/reward-card-body.tsx`: extracted the description/notes/badges/rating block shared by `RewardCard` and `RewardTable`'s expanded row, so the Card grid and Table accordion can never visually drift apart — single source of truth instead of duplicated markup
+- `lib/theme.ts`: `typography.letterSpacing.wordmarkCompact`, used only below the `sm` breakpoint
+
+No changes to search/filter/sort/favorite/used logic, data fetching, or the `/reward/[id]` route itself — it's kept fully intact for direct URL access and `sitemap.ts`; only the one internal link to it (from the table's store cell) was removed.
+
 ### Phase 4B - Homepage UI Refinement
 
 Changed

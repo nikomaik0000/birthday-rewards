@@ -61,7 +61,9 @@ export const layout = {
   // arbitrary value — every RewardCard references this one token.
   // Phase 4C v2: bumped up to fit the more generous internal spacing
   // (padding, divider/description/notes rhythm) added this pass.
-  cardMinHeight: "328px",
+  // Phase 4D: reduced again — the card's internal spacing was tightened to
+  // remove empty vertical space on shorter cards; typography is unchanged.
+  cardMinHeight: "260px",
 } as const;
 
 export const boxShadow = {
@@ -97,6 +99,10 @@ export const typography = {
     // Phase 4C v2: widened further per feedback; the wordmark keeps its
     // own spacing, distinct from the general interface-text value below.
     wordmark: "0.2em",
+    // Phase 4D: a tighter tracking value used only below the `sm` breakpoint,
+    // paired with a smaller font-size, so "BIRTHDAY REWARDS" always fits on
+    // one line on narrow screens without truncating or wrapping.
+    wordmarkCompact: "0.04em",
     // Phase 4C v2: the consistent typography rhythm applied to normal
     // interface text app-wide (see the `body` rule in globals.css) — store
     // names, descriptions, notes, search/filter/sort UI, buttons, badges.

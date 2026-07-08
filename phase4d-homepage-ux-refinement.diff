@@ -1,0 +1,376 @@
+diff --git a/components/reward-card-body.tsx b/components/reward-card-body.tsx
+new file mode 100644
+index 0000000..39df2ce
+--- /dev/null
++++ b/components/reward-card-body.tsx
+@@ -0,0 +1,64 @@
++import { CategoryBadge, TagBadge } from "@/components/tag-badge";
++import { ExpiryBadge } from "@/components/expiry-badge";
++import { StarRating } from "@/components/star-rating";
++import type { RewardWithTags } from "@/lib/types";
++import { cn } from "@/lib/utils";
++
++// Phase 4D: description, notes, badges, and rating — the part of a reward's
++// display that's identical whether you're looking at the Card grid or the
++// Table's expanded row. Pulled out once so Grid and Table can never drift
++// out of sync with each other; each caller only owns its own outer chrome
++// (card border/shadow/padding vs. table row background).
++export function RewardCardBody({
++  reward,
++  clampDescription = true,
++  pinBadgesToBottom = false,
++}: {
++  reward: RewardWithTags;
++  // Card grid clips the description to 3 lines to keep every card the same
++  // height; the Table's expand panel isn't height-constrained, so it shows
++  // the full description instead.
++  clampDescription?: boolean;
++  // Card grid pins the badge/rating row to the bottom of the fixed-height
++  // card (via the parent's flex column) so every card in a row lines up.
++  // The Table's expand panel isn't a fixed-height flex container, so it
++  // just flows normally there.
++  pinBadgesToBottom?: boolean;
++}) {
++  return (
++    <>
++      <p className={cn("text-sm leading-normal text-ink/90", clampDescription && "line-clamp-3")}>
++        {reward.content}
++      </p>
++
++      {/* Notes only render when present. The gap above them is deliberately
++          larger than the description's own line-height, so they read as a
++          clearly separate, secondary line rather than a continuation. */}
++      {reward.notes && (
++        <p className="mt-4 truncate text-xs font-normal text-muted/70">
++          <span className="text-muted/50">› </span>
++          {reward.notes}
++        </p>
++      )}
++
++      {/* Badge row: Category → Validity Period → Redemption Method(s), one
++          consistently-spaced row, all sharing the same unified badge style —
++          paired with the rating on the same row. */}
++      <div
++        className={cn(
++          "flex flex-wrap items-end justify-between gap-2",
++          pinBadgesToBottom ? "mt-auto" : "mt-5"
++        )}
++      >
++        <div className="flex flex-wrap items-center gap-1.5">
++          <CategoryBadge category={reward.category} />
++          <ExpiryBadge expiryDate={reward.expiry_date} />
++          {reward.tags.map((t) => (
++            <TagBadge key={t.id} name={t.name} colorHex={t.color_hex} />
++          ))}
++        </div>
++        <StarRating className="shrink-0" score={reward.score} />
++      </div>
++    </>
++  );
++}
+diff --git a/components/reward-card.tsx b/components/reward-card.tsx
+index 806c6d1..2f5386f 100644
+--- a/components/reward-card.tsx
++++ b/components/reward-card.tsx
+@@ -1,9 +1,7 @@
+ "use client";
+ 
+ import { Heart, Check, Link2 } from "lucide-react";
+-import { CategoryBadge, TagBadge } from "@/components/tag-badge";
+-import { StarRating } from "@/components/star-rating";
+-import { ExpiryBadge } from "@/components/expiry-badge";
++import { RewardCardBody } from "@/components/reward-card-body";
+ import type { RewardWithTags } from "@/lib/types";
+ import { cn } from "@/lib/utils";
+ 
+@@ -30,15 +28,15 @@ export function RewardCard({
+   return (
+     <div
+       className={cn(
+-        // v2 spacing pass: p-4 → p-5, gap-3 → gap-4 for more breathing room;
+-        // border-radius/shadow stay on the shared rounded-card / shadow-soft
+-        // tokens so every card in the app stays visually consistent.
+         // Phase 4B: the card is no longer a click target — no dialog, no
+         // detail-page navigation.
+         // Phase 4C: fixed min-height (instead of a reserved blank notes
+         // line) keeps every card the same height, whether or not a reward
+         // has notes — the bottom section is pinned down with mt-auto.
+-        "group relative flex min-h-card flex-col rounded-card border border-border bg-surface p-6 shadow-soft transition-shadow hover:shadow-pop",
++        // Phase 4D: padding/min-height trimmed to remove empty vertical
++        // space on shorter cards — typography is unchanged, only the
++        // surrounding whitespace is tighter.
++        "group relative flex min-h-card flex-col rounded-card border border-border bg-surface p-5 shadow-soft transition-shadow hover:shadow-pop",
+         reward.is_used && "opacity-60"
+       )}
+     >
+@@ -92,34 +90,11 @@ export function RewardCard({
+       </div>
+ 
+       {/* Thin divider under the title — the dedicated `divider` token (same
+-          value as the badge border), with more room above and below for a
+-          calmer vertical rhythm. */}
+-      <div className="mt-5 border-t border-divider" />
++          value as the badge border). */}
++      <div className="mt-4 border-t border-divider" />
+ 
+-      <p className="mt-5 line-clamp-3 text-sm leading-normal text-ink/90">{reward.content}</p>
+-
+-      {/* Notes only render when present. The gap above them is deliberately
+-          larger than the description's own line-height, so they read as a
+-          clearly separate, secondary line rather than a continuation. */}
+-      {reward.notes && (
+-        <p className="mt-6 truncate text-xs font-normal text-muted/70">
+-          <span className="text-muted/50">› </span>
+-          {reward.notes}
+-        </p>
+-      )}
+-
+-      {/* Badge row: Category → Validity Period → Redemption Method(s), one
+-          consistently-spaced row, all sharing the same unified badge style —
+-          now paired with the rating on the same bottom row. */}
+-      <div className="mt-auto flex items-end justify-between gap-2 pt-6">
+-        <div className="flex flex-wrap items-center gap-1.5">
+-          <CategoryBadge category={reward.category} />
+-          <ExpiryBadge expiryDate={reward.expiry_date} />
+-          {reward.tags.map((t) => (
+-            <TagBadge key={t.id} name={t.name} colorHex={t.color_hex} />
+-          ))}
+-        </div>
+-        <StarRating className="shrink-0" score={reward.score} />
++      <div className="mt-4 flex flex-1 flex-col">
++        <RewardCardBody reward={reward} pinBadgesToBottom />
+       </div>
+     </div>
+   );
+diff --git a/components/reward-explorer.tsx b/components/reward-explorer.tsx
+index a2bea85..07d90ca 100644
+--- a/components/reward-explorer.tsx
++++ b/components/reward-explorer.tsx
+@@ -171,8 +171,12 @@ export function RewardExplorer({
+       <header className="sticky top-0 z-20 -mx-4 mb-8 border-b border-border bg-bg/90 px-4 pb-4 pt-3 backdrop-blur sm:-mx-6 sm:px-6">
+         <div className="mb-4 flex items-center justify-between gap-3">
+           {/* Phase 4C v2: Chinese subtitle removed per feedback — a simpler,
+-              English-wordmark-only header for a calmer, more editorial feel. */}
+-          <h1 className="min-w-0 flex-1 truncate font-serif text-3xl font-light uppercase tracking-wordmark text-ink">
++              English-wordmark-only header for a calmer, more editorial feel.
++              Phase 4D: smaller size + tighter tracking below `sm` so the
++              full wordmark always fits on one line on narrow screens —
++              whitespace-nowrap (not truncate) so it's never cut off with
++              an ellipsis either. */}
++          <h1 className="min-w-0 flex-1 whitespace-nowrap font-serif text-base font-light uppercase tracking-wordmarkCompact text-ink sm:text-3xl sm:tracking-wordmark">
+             Birthday Rewards
+           </h1>
+           <div className="flex shrink-0 items-center gap-2">
+diff --git a/components/reward-table.tsx b/components/reward-table.tsx
+index 5defb2c..50a9a80 100644
+--- a/components/reward-table.tsx
++++ b/components/reward-table.tsx
+@@ -1,12 +1,12 @@
+ "use client";
+ 
+ import { Fragment, useState } from "react";
+-import Link from "next/link";
+ import { useReactTable, getCoreRowModel, flexRender, type ColumnDef } from "@tanstack/react-table";
+-import { Heart, Check, ExternalLink, ChevronRight, Tag, Calendar } from "lucide-react";
++import { Heart, Check, ExternalLink, ChevronRight } from "lucide-react";
+ import { CategoryBadge } from "@/components/tag-badge";
+ import { StarRating } from "@/components/star-rating";
+ import { ExpiryBadge } from "@/components/expiry-badge";
++import { RewardCardBody } from "@/components/reward-card-body";
+ import type { RewardWithTags } from "@/lib/types";
+ import { cn } from "@/lib/utils";
+ 
+@@ -14,10 +14,6 @@ import { cn } from "@/lib/utils";
+ // there; 日期 moves into the expanded accordion instead of showing as its own column.
+ const MOBILE_HIDDEN_COLUMN_IDS = new Set(["category","content","date_category", "score", "expiry", "used", "link"]);
+ 
+-// Tailwind's `md` breakpoint (768px) — used to distinguish tap-to-expand (mobile)
+-// from the normal detail-page link (desktop) without affecting desktop behavior.
+-const MOBILE_MEDIA_QUERY = "(max-width: 767px)";
+-
+ export function RewardTable({
+   rewards,
+   onToggleFavorite,
+@@ -37,19 +33,14 @@ export function RewardTable({
+         const r = row.original;
+         const isExpanded = expandedId === r.id;
+         return (
+-          <Link
+-            href={`/reward/${r.id}`}
+-            className="flex min-w-0 items-center gap-2"
+-            onClick={(e) => {
+-              // On mobile the row itself toggles the accordion instead of navigating.
+-              if (window.matchMedia(MOBILE_MEDIA_QUERY).matches) {
+-                e.preventDefault();
+-              }
+-            }}
+-          >
++          // Phase 4D: no longer a Link to /reward/[id] — clicking anywhere
++          // on the row (see the <tr onClick> below) expands/collapses this
++          // row inline instead, on every screen size. The route itself
++          // still exists for direct URL access / SEO (see sitemap.ts).
++          <div className="flex min-w-0 items-center gap-2">
+             <ChevronRight
+               className={cn(
+-                "h-4 w-4 shrink-0 text-muted transition-transform duration-200 md:hidden",
++                "h-4 w-4 shrink-0 text-muted transition-transform duration-200",
+                 isExpanded && "rotate-90"
+               )}
+             />
+@@ -62,7 +53,7 @@ export function RewardTable({
+     {r.content}
+   </span>
+ </div>
+-          </Link>
++          </div>
+         );
+       },
+     },
+@@ -140,7 +131,15 @@ export function RewardTable({
+           );
+         }
+         return (
+-          <button type="button" onClick={() => onToggleUsed(r.id, !r.is_used)} aria-pressed={r.is_used} className={statusClasses}>
++          <button
++            type="button"
++            onClick={(e) => {
++              e.stopPropagation();
++              onToggleUsed(r.id, !r.is_used);
++            }}
++            aria-pressed={r.is_used}
++            className={statusClasses}
++          >
+             <Check className="h-3 w-3" />
+             {r.is_used ? "已兌換" : "未使用"}
+           </button>
+@@ -162,6 +161,7 @@ export function RewardTable({
+       href={r.official_url}
+             target="_blank"
+             rel="noopener noreferrer"
++            onClick={(e) => e.stopPropagation()}
+             aria-label={`前往 ${r.store_name} 官網`}
+             className="rounded-full p-1 text-muted hover:bg-bg"
+           >
+@@ -201,13 +201,9 @@ export function RewardTable({
+             return (
+               <Fragment key={row.id}>
+                 <tr
+-                  onClick={() => {
+-                    if (window.matchMedia(MOBILE_MEDIA_QUERY).matches) {
+-                      setExpandedId(isExpanded ? null : r.id);
+-                    }
+-                  }}
++                  onClick={() => setExpandedId(isExpanded ? null : r.id)}
+                   className={cn(
+-                    "cursor-pointer border-b border-border last:border-0 hover:bg-bg/40 md:cursor-default",
++                    "cursor-pointer border-b border-border last:border-0 hover:bg-bg/40",
+                     row.original.is_used && "opacity-60"
+                   )}
+                 >
+@@ -225,30 +221,27 @@ export function RewardTable({
+                     </td>
+                   ))}
+                 </tr>
+-                <tr className="md:hidden">
++                {/* Phase 4D: expand/collapse now works at every breakpoint
++                    (previously mobile-only) — same smooth grid-template-rows
++                    animation as before. Content reuses RewardCardBody, the
++                    same component the Card grid uses, so Grid and Table
++                    show identical reward details. */}
++                <tr>
+                   <td colSpan={row.getVisibleCells().length} className="p-0">
+                     <div
+                       className="grid transition-all duration-200 ease-in-out"
+                       style={{ gridTemplateRows: isExpanded ? "1fr" : "0fr" }}
+                     >
+                       <div className="overflow-hidden">
+-                        <div className="space-y-3 border-t border-border bg-bg/40 px-4 py-4">
+-                          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-ink/90">
+-                            <StarRating score={r.score} />
+-                            <span className="inline-flex items-center gap-1">
+-                              <Tag className="h-3.5 w-3.5 text-muted" aria-hidden="true" /> <CategoryBadge category={r.category} />
+-                            </span>
+-                            <span className="inline-flex items-center gap-1">
+-                              <Calendar className="h-3.5 w-3.5 text-muted" aria-hidden="true" /> {r.date_category}
+-                            </span>
+-                          </div>
++                        <div className="border-t border-divider bg-bg/40 px-4 py-4">
++                          <RewardCardBody reward={r} clampDescription={false} />
+                           {r.official_url && (
+                             <a
+                               href={r.official_url}
+                               target="_blank"
+                               rel="noopener noreferrer"
+                               onClick={(e) => e.stopPropagation()}
+-                              className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-border bg-white px-4 py-2.5 text-center font-medium text-ink/90 hover:bg-bg"
++                              className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-lg border border-border bg-white px-4 py-2.5 text-center font-medium text-ink/90 hover:bg-bg"
+                             >
+                               前往官網
+                               <ExternalLink className="h-3.5 w-3.5" />
+diff --git a/docs/CHANGELOG.md b/docs/CHANGELOG.md
+index f4bb3d8..40bd963 100644
+--- a/docs/CHANGELOG.md
++++ b/docs/CHANGELOG.md
+@@ -2,6 +2,24 @@
+ 
+ ## v4.0 (In Progress)
+ 
++### Phase 4D - Homepage UX Refinement
++
++UX/behavior refinement on top of Phase 4C. Reuses existing components; no new visual design outside what's described below.
++
++Changed
++
++- Mobile header: the "BIRTHDAY REWARDS" wordmark now stays on one line at every screen size — smaller size + tighter tracking below `sm`, `whitespace-nowrap` instead of `truncate` (no ellipsis, no wrap)
++- Reward card: padding and internal spacing trimmed to remove empty vertical space on shorter cards (typography unchanged); `cardMinHeight` reduced accordingly
++- Desktop table: clicking a row now expands/collapses inline (same accordion + animation the mobile table already used) instead of navigating to `/reward/[id]` — behavior is now identical across all screen sizes
++- Table's expanded row now shows the full description, notes (previously missing entirely), and tag badges, alongside the rating and official-site link that were already there
++
++Added
++
++- `components/reward-card-body.tsx`: extracted the description/notes/badges/rating block shared by `RewardCard` and `RewardTable`'s expanded row, so the Card grid and Table accordion can never visually drift apart — single source of truth instead of duplicated markup
++- `lib/theme.ts`: `typography.letterSpacing.wordmarkCompact`, used only below the `sm` breakpoint
++
++No changes to search/filter/sort/favorite/used logic, data fetching, or the `/reward/[id]` route itself — it's kept fully intact for direct URL access and `sitemap.ts`; only the one internal link to it (from the table's store cell) was removed.
++
+ ### Phase 4B - Homepage UI Refinement
+ 
+ Changed
+diff --git a/docs/TODO.md b/docs/TODO.md
+index fac933f..9c672d1 100644
+--- a/docs/TODO.md
++++ b/docs/TODO.md
+@@ -2,6 +2,7 @@
+ 
+ ## Done
+ 
++- Homepage UX Refinement (Phase 4D) — mobile wordmark stays on one line at every width (no truncation, no wrap); reward card padding/spacing trimmed to remove empty vertical space (typography unchanged); Desktop Table now expands/collapses inline on row click instead of navigating to the detail page, matching the existing Mobile accordion behavior exactly; expanded row content extended with full description, notes, and tags; extracted a shared `RewardCardBody` component so Card grid and Table accordion reuse identical rendering logic; `/reward/[id]` route kept intact for direct access/SEO, only internal navigation to it removed; no functional changes to search/filter/sort/favorite/used
+ - Homepage Visual Refinement (Phase 4C v2) — header simplified to English-only wordmark (uppercase, wider tracking); 0.075em letter-spacing applied site-wide via inherited body tracking; reward card breathing room increased (padding, divider spacing, description line-height, notes spacing, bottom spacing); grid gap increased; search bar background/radius now matches the filter bar; badge border/text unified via `badgeBorder`/`badgeText` tokens; all active/selected states (view toggle, filter badge, tag selection, used-filter toggle, sort selection) unified onto one `accentSoft` token; store name typography refined (serif, 20px, light); divider uses dedicated `divider` token; card shadow softened; no new hardcoded colors — everything added to `lib/theme.ts`; no functional changes
+ - Homepage Visual Refresh (Phase 4C) — light-weight serif "Birthday Rewards" wordmark with generous letter-spacing + small Chinese subtitle in a compact two-line header; larger/rounder search bar with more breathing room; filter toggle and result count merged into one row; view toggle active state switched from dark ink to a soft coffee tint; reward card restructured (softened divider under title, description, optional notes in a lighter tone, badges + rating moved to the bottom row, Link/Favorite grouped as top-right icon buttons with Used kept as a labeled pill); all colors driven by centralized theme tokens; no changes to search/filter/sort logic or toggle behavior
+ - Homepage UI Refinement (Phase 4B) — removed the modal from Phase 4A entirely (cards are non-interactive again); unified badge row (Category → Validity → Redemption tags) with one shared badge style; reserved one-line notes row for fixed card height; typography hierarchy (16px/semibold store name, 14px description, 12px notes); Lucide `Star`/`Tag`/`Calendar` icons replace remaining emoji; used-status pill kept as-is
+diff --git a/lib/theme.ts b/lib/theme.ts
+index 4f19e37..866100b 100644
+--- a/lib/theme.ts
++++ b/lib/theme.ts
+@@ -61,7 +61,9 @@ export const layout = {
+   // arbitrary value — every RewardCard references this one token.
+   // Phase 4C v2: bumped up to fit the more generous internal spacing
+   // (padding, divider/description/notes rhythm) added this pass.
+-  cardMinHeight: "328px",
++  // Phase 4D: reduced again — the card's internal spacing was tightened to
++  // remove empty vertical space on shorter cards; typography is unchanged.
++  cardMinHeight: "260px",
+ } as const;
+ 
+ export const boxShadow = {
+@@ -97,6 +99,10 @@ export const typography = {
+     // Phase 4C v2: widened further per feedback; the wordmark keeps its
+     // own spacing, distinct from the general interface-text value below.
+     wordmark: "0.2em",
++    // Phase 4D: a tighter tracking value used only below the `sm` breakpoint,
++    // paired with a smaller font-size, so "BIRTHDAY REWARDS" always fits on
++    // one line on narrow screens without truncating or wrapping.
++    wordmarkCompact: "0.04em",
+     // Phase 4C v2: the consistent typography rhythm applied to normal
+     // interface text app-wide (see the `body` rule in globals.css) — store
+     // names, descriptions, notes, search/filter/sort UI, buttons, badges.

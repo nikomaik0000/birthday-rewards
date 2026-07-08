@@ -1,9 +1,7 @@
 "use client";
 
 import { Heart, Check, Link2 } from "lucide-react";
-import { CategoryBadge, TagBadge } from "@/components/tag-badge";
-import { StarRating } from "@/components/star-rating";
-import { ExpiryBadge } from "@/components/expiry-badge";
+import { RewardCardBody } from "@/components/reward-card-body";
 import type { RewardWithTags } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -30,15 +28,15 @@ export function RewardCard({
   return (
     <div
       className={cn(
-        // v2 spacing pass: p-4 → p-5, gap-3 → gap-4 for more breathing room;
-        // border-radius/shadow stay on the shared rounded-card / shadow-soft
-        // tokens so every card in the app stays visually consistent.
         // Phase 4B: the card is no longer a click target — no dialog, no
         // detail-page navigation.
         // Phase 4C: fixed min-height (instead of a reserved blank notes
         // line) keeps every card the same height, whether or not a reward
         // has notes — the bottom section is pinned down with mt-auto.
-        "group relative flex min-h-card flex-col rounded-card border border-border bg-surface p-6 shadow-soft transition-shadow hover:shadow-pop",
+        // Phase 4D: padding/min-height trimmed to remove empty vertical
+        // space on shorter cards — typography is unchanged, only the
+        // surrounding whitespace is tighter.
+        "group relative flex min-h-card flex-col rounded-card border border-border bg-surface p-5 shadow-soft transition-shadow hover:shadow-pop",
         reward.is_used && "opacity-60"
       )}
     >
@@ -92,34 +90,11 @@ export function RewardCard({
       </div>
 
       {/* Thin divider under the title — the dedicated `divider` token (same
-          value as the badge border), with more room above and below for a
-          calmer vertical rhythm. */}
-      <div className="mt-5 border-t border-divider" />
+          value as the badge border). */}
+      <div className="mt-4 border-t border-divider" />
 
-      <p className="mt-5 line-clamp-3 text-sm leading-normal text-ink/90">{reward.content}</p>
-
-      {/* Notes only render when present. The gap above them is deliberately
-          larger than the description's own line-height, so they read as a
-          clearly separate, secondary line rather than a continuation. */}
-      {reward.notes && (
-        <p className="mt-6 truncate text-xs font-normal text-muted/70">
-          <span className="text-muted/50">› </span>
-          {reward.notes}
-        </p>
-      )}
-
-      {/* Badge row: Category → Validity Period → Redemption Method(s), one
-          consistently-spaced row, all sharing the same unified badge style —
-          now paired with the rating on the same bottom row. */}
-      <div className="mt-auto flex items-end justify-between gap-2 pt-6">
-        <div className="flex flex-wrap items-center gap-1.5">
-          <CategoryBadge category={reward.category} />
-          <ExpiryBadge expiryDate={reward.expiry_date} />
-          {reward.tags.map((t) => (
-            <TagBadge key={t.id} name={t.name} colorHex={t.color_hex} />
-          ))}
-        </div>
-        <StarRating className="shrink-0" score={reward.score} />
+      <div className="mt-4 flex flex-1 flex-col">
+        <RewardCardBody reward={reward} pinBadgesToBottom />
       </div>
     </div>
   );
