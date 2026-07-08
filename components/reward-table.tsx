@@ -260,14 +260,7 @@ export function RewardTable({
                             !hasExtra && "md:border-t-0 md:bg-transparent md:py-0"
                           )}
                         >
-                          <div className="space-y-2 md:hidden">
-                            <p className="text-sm leading-normal text-ink/90">{r.content}</p>
-                            <div className="flex flex-wrap items-center gap-2">
-                              <StarRating score={r.score} />
-                              <CategoryBadge category={r.category} />
-                              <ExpiryBadge expiryDate={r.expiry_date} />
-                            </div>
-                          </div>
+                
                           {hasExtra && (
                             <div className="mt-2 space-y-2 md:mt-0">
                               <RewardExtraInfo reward={r} />
