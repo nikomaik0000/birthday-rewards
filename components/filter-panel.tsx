@@ -45,7 +45,7 @@ export function FilterPanel({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between px-4 py-3"
+        className="flex w-full items-center justify-between px-4 h-10"
         aria-expanded={open}
       >
         <span className="flex items-center gap-2 text-sm font-medium">

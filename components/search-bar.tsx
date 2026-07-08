@@ -19,7 +19,7 @@ export function SearchBar({
         // Phase 4C v2: no placeholder copy — the search icon alone signals
         // intent, per the mockup.
         placeholder=""
-        className="h-14 rounded-card border-transparent bg-searchBackground pl-12 pr-11 text-sm shadow-soft"
+        className="h-10 rounded-card border-transparent bg-searchBackground pl-12 pr-11 text-sm "
         aria-label="搜尋優惠"
       />
       {value && (
