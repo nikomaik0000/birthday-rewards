@@ -1,0 +1,208 @@
+diff --git a/components/reward-extra-info.tsx b/components/reward-extra-info.tsx
+new file mode 100644
+index 0000000..ab4d8ff
+--- /dev/null
++++ b/components/reward-extra-info.tsx
+@@ -0,0 +1,41 @@
++import { ExternalLink } from "lucide-react";
++import { TagBadge } from "@/components/tag-badge";
++import type { RewardWithTags } from "@/lib/types";
++
++// Phase 4E: the part of the Table's expanded row that's genuinely NOT
++// visible anywhere else — notes, tags, and the official link. Shared
++// identically between the Desktop and Mobile expand panels (see
++// reward-table.tsx), since this content doesn't differ between them.
++export function RewardExtraInfo({ reward }: { reward: RewardWithTags }) {
++  return (
++    <>
++      {reward.notes && (
++        <p className="text-xs font-normal text-muted/70">
++          <span className="text-muted/50">› </span>
++          {reward.notes}
++        </p>
++      )}
++
++      {reward.tags.length > 0 && (
++        <div className="flex flex-wrap gap-1.5">
++          {reward.tags.map((t) => (
++            <TagBadge key={t.id} name={t.name} colorHex={t.color_hex} />
++          ))}
++        </div>
++      )}
++
++      {reward.official_url && (
++        <a
++          href={reward.official_url}
++          target="_blank"
++          rel="noopener noreferrer"
++          onClick={(e) => e.stopPropagation()}
++          className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-border bg-white px-4 py-2.5 text-center font-medium text-ink/90 hover:bg-bg"
++        >
++          前往官網
++          <ExternalLink className="h-3.5 w-3.5" />
++        </a>
++      )}
++    </>
++  );
++}
+diff --git a/components/reward-table.tsx b/components/reward-table.tsx
+index 50a9a80..bd56f6e 100644
+--- a/components/reward-table.tsx
++++ b/components/reward-table.tsx
+@@ -6,7 +6,7 @@ import { Heart, Check, ExternalLink, ChevronRight } from "lucide-react";
+ import { CategoryBadge } from "@/components/tag-badge";
+ import { StarRating } from "@/components/star-rating";
+ import { ExpiryBadge } from "@/components/expiry-badge";
+-import { RewardCardBody } from "@/components/reward-card-body";
++import { RewardExtraInfo } from "@/components/reward-extra-info";
+ import type { RewardWithTags } from "@/lib/types";
+ import { cn } from "@/lib/utils";
+ 
+@@ -32,6 +32,12 @@ export function RewardTable({
+       cell: ({ row }) => {
+         const r = row.original;
+         const isExpanded = expandedId === r.id;
++        // Phase 4E: on desktop, expanding only ever reveals notes/tags/link
++        // (everything else is already a column) — dim the chevron when a
++        // reward has none of those, so it doesn't promise content that
++        // isn't there. Mobile always has something to show, so it keeps
++        // full visibility regardless.
++        const hasExtra = Boolean(r.notes) || r.tags.length > 0 || Boolean(r.official_url);
+         return (
+           // Phase 4D: no longer a Link to /reward/[id] — clicking anywhere
+           // on the row (see the <tr onClick> below) expands/collapses this
+@@ -41,7 +47,8 @@ export function RewardTable({
+             <ChevronRight
+               className={cn(
+                 "h-4 w-4 shrink-0 text-muted transition-transform duration-200",
+-                isExpanded && "rotate-90"
++                isExpanded && "rotate-90",
++                !hasExtra && "md:invisible"
+               )}
+             />
+            <div className="min-w-0 flex-1 md:flex-none">
+@@ -49,7 +56,7 @@ export function RewardTable({
+     {r.store_name}
+   </span>
+ 
+-  <span className="mt-0.5 block truncate text-xs text-muted md:hidden">
++  <span className="mt-0.5 block truncate pr-2 text-xs text-muted md:hidden">
+     {r.content}
+   </span>
+ </div>
+@@ -198,6 +205,14 @@ export function RewardTable({
+           {table.getRowModel().rows.map((row) => {
+             const r = row.original;
+             const isExpanded = expandedId === r.id;
++            // Phase 4E: on desktop, every field is already a column, so the
++            // expand panel only ever adds notes/tags/link. When a reward has
++            // none of those, expanding would just reveal an empty padded
++            // box — so we detect that case and collapse it to true zero
++            // height, and dim the chevron so it doesn't promise content
++            // that isn't there. Mobile always has something (rating/
++            // category/expiry aren't columns there), so it's unaffected.
++            const hasExtra = Boolean(r.notes) || r.tags.length > 0 || Boolean(r.official_url);
+             return (
+               <Fragment key={row.id}>
+                 <tr
+@@ -221,11 +236,17 @@ export function RewardTable({
+                     </td>
+                   ))}
+                 </tr>
+-                {/* Phase 4D: expand/collapse now works at every breakpoint
+-                    (previously mobile-only) — same smooth grid-template-rows
+-                    animation as before. Content reuses RewardCardBody, the
+-                    same component the Card grid uses, so Grid and Table
+-                    show identical reward details. */}
++                {/* Phase 4D: expand/collapse works at every breakpoint, same
++                    smooth grid-template-rows animation.
++                    Phase 4E: Desktop's row already shows every column
++                    (category/content/date/score/expiry/used/link), so its
++                    expand panel now only shows what's genuinely missing —
++                    notes, tags, official link (RewardExtraInfo). Mobile
++                    hides most of those columns, so its panel additionally
++                    repeats the full description plus rating/category/expiry
++                    — the only place they're visible there. Spacing kept
++                    tight/compact throughout, and the panel collapses to
++                    zero on desktop when there's nothing extra to show. */}
+                 <tr>
+                   <td colSpan={row.getVisibleCells().length} className="p-0">
+                     <div
+@@ -233,19 +254,24 @@ export function RewardTable({
+                       style={{ gridTemplateRows: isExpanded ? "1fr" : "0fr" }}
+                     >
+                       <div className="overflow-hidden">
+-                        <div className="border-t border-divider bg-bg/40 px-4 py-4">
+-                          <RewardCardBody reward={r} clampDescription={false} />
+-                          {r.official_url && (
+-                            <a
+-                              href={r.official_url}
+-                              target="_blank"
+-                              rel="noopener noreferrer"
+-                              onClick={(e) => e.stopPropagation()}
+-                              className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-lg border border-border bg-white px-4 py-2.5 text-center font-medium text-ink/90 hover:bg-bg"
+-                            >
+-                              前往官網
+-                              <ExternalLink className="h-3.5 w-3.5" />
+-                            </a>
++                        <div
++                          className={cn(
++                            "border-t border-divider bg-bg/40 px-4 py-3",
++                            !hasExtra && "md:border-t-0 md:bg-transparent md:py-0"
++                          )}
++                        >
++                          <div className="space-y-2 md:hidden">
++                            <p className="text-sm leading-normal text-ink/90">{r.content}</p>
++                            <div className="flex flex-wrap items-center gap-2">
++                              <StarRating score={r.score} />
++                              <CategoryBadge category={r.category} />
++                              <ExpiryBadge expiryDate={r.expiry_date} />
++                            </div>
++                          </div>
++                          {hasExtra && (
++                            <div className="mt-2 space-y-2 md:mt-0">
++                              <RewardExtraInfo reward={r} />
++                            </div>
+                           )}
+                         </div>
+                       </div>
+diff --git a/docs/CHANGELOG.md b/docs/CHANGELOG.md
+index 40bd963..5c61553 100644
+--- a/docs/CHANGELOG.md
++++ b/docs/CHANGELOG.md
+@@ -2,6 +2,23 @@
+ 
+ ## v4.0 (In Progress)
+ 
++### Phase 4E - Homepage UX Polish
++
++A refinement pass on top of Phase 4D. Reuses existing components; no functional changes.
++
++Changed
++
++- Desktop table's expanded row no longer repeats what's already visible in the row itself (category/description/date/score/expiry/used/link) — it now shows only notes, tags, and the official link, i.e. the information that's genuinely missing from the table
++- When a reward has none of those three things, the desktop expand panel now collapses to true zero height instead of revealing an empty padded box, and its chevron dims to not promise content that isn't there (mobile is unaffected — it always has something to show, since its columns are hidden)
++- Mobile's expanded row now always shows the full description (kept intentionally simple — no JS-based truncation detection) alongside rating/category/expiry (the only place those are visible on mobile), plus notes/tags/link
++- Tightened spacing throughout the expand panel so it's only as tall as its content requires
++
++Added
++
++- `components/reward-extra-info.tsx`: the notes/tags/official-link block, shared identically between the Desktop and Mobile expand panels
++
++Verified (not assumed) that the Card grid's equal-height mechanism (`min-h-card` + `flex flex-col` + `mt-auto`-pinned badge row, combined with CSS Grid's default row-stretch) already produces consistent card heights regardless of notes/description length — confirmed by rendering the actual components with varied mock content and pixel-measuring the output; no changes were needed there.
++
+ ### Phase 4D - Homepage UX Refinement
+ 
+ UX/behavior refinement on top of Phase 4C. Reuses existing components; no new visual design outside what's described below.
+diff --git a/docs/TODO.md b/docs/TODO.md
+index 9c672d1..e156491 100644
+--- a/docs/TODO.md
++++ b/docs/TODO.md
+@@ -2,6 +2,7 @@
+ 
+ ## Done
+ 
++- Homepage UX Polish (Phase 4E) — Desktop table's expand panel no longer duplicates visible columns, showing only notes/tags/link (the genuinely missing info); collapses to zero height and dims its chevron when a reward has none of those; Mobile's expand panel always shows the full description (kept simple, no JS truncation detection) plus rating/category/expiry alongside notes/tags/link; extracted a shared `RewardExtraInfo` component reused by both Desktop and Mobile; verified via actual rendering with varied mock content that the Card grid's equal-height mechanism already works correctly, no changes needed there; no functional changes
+ - Homepage UX Refinement (Phase 4D) — mobile wordmark stays on one line at every width (no truncation, no wrap); reward card padding/spacing trimmed to remove empty vertical space (typography unchanged); Desktop Table now expands/collapses inline on row click instead of navigating to the detail page, matching the existing Mobile accordion behavior exactly; expanded row content extended with full description, notes, and tags; extracted a shared `RewardCardBody` component so Card grid and Table accordion reuse identical rendering logic; `/reward/[id]` route kept intact for direct access/SEO, only internal navigation to it removed; no functional changes to search/filter/sort/favorite/used
+ - Homepage Visual Refinement (Phase 4C v2) — header simplified to English-only wordmark (uppercase, wider tracking); 0.075em letter-spacing applied site-wide via inherited body tracking; reward card breathing room increased (padding, divider spacing, description line-height, notes spacing, bottom spacing); grid gap increased; search bar background/radius now matches the filter bar; badge border/text unified via `badgeBorder`/`badgeText` tokens; all active/selected states (view toggle, filter badge, tag selection, used-filter toggle, sort selection) unified onto one `accentSoft` token; store name typography refined (serif, 20px, light); divider uses dedicated `divider` token; card shadow softened; no new hardcoded colors — everything added to `lib/theme.ts`; no functional changes
+ - Homepage Visual Refresh (Phase 4C) — light-weight serif "Birthday Rewards" wordmark with generous letter-spacing + small Chinese subtitle in a compact two-line header; larger/rounder search bar with more breathing room; filter toggle and result count merged into one row; view toggle active state switched from dark ink to a soft coffee tint; reward card restructured (softened divider under title, description, optional notes in a lighter tone, badges + rating moved to the bottom row, Link/Favorite grouped as top-right icon buttons with Used kept as a labeled pill); all colors driven by centralized theme tokens; no changes to search/filter/sort logic or toggle behavior

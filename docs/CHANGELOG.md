@@ -2,6 +2,23 @@
 
 ## v4.0 (In Progress)
 
+### Phase 4E - Homepage UX Polish
+
+A refinement pass on top of Phase 4D. Reuses existing components; no functional changes.
+
+Changed
+
+- Desktop table's expanded row no longer repeats what's already visible in the row itself (category/description/date/score/expiry/used/link) — it now shows only notes, tags, and the official link, i.e. the information that's genuinely missing from the table
+- When a reward has none of those three things, the desktop expand panel now collapses to true zero height instead of revealing an empty padded box, and its chevron dims to not promise content that isn't there (mobile is unaffected — it always has something to show, since its columns are hidden)
+- Mobile's expanded row now always shows the full description (kept intentionally simple — no JS-based truncation detection) alongside rating/category/expiry (the only place those are visible on mobile), plus notes/tags/link
+- Tightened spacing throughout the expand panel so it's only as tall as its content requires
+
+Added
+
+- `components/reward-extra-info.tsx`: the notes/tags/official-link block, shared identically between the Desktop and Mobile expand panels
+
+Verified (not assumed) that the Card grid's equal-height mechanism (`min-h-card` + `flex flex-col` + `mt-auto`-pinned badge row, combined with CSS Grid's default row-stretch) already produces consistent card heights regardless of notes/description length — confirmed by rendering the actual components with varied mock content and pixel-measuring the output; no changes were needed there.
+
 ### Phase 4D - Homepage UX Refinement
 
 UX/behavior refinement on top of Phase 4C. Reuses existing components; no new visual design outside what's described below.

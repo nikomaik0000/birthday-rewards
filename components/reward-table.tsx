@@ -6,7 +6,7 @@ import { Heart, Check, ExternalLink, ChevronRight } from "lucide-react";
 import { CategoryBadge } from "@/components/tag-badge";
 import { StarRating } from "@/components/star-rating";
 import { ExpiryBadge } from "@/components/expiry-badge";
-import { RewardCardBody } from "@/components/reward-card-body";
+import { RewardExtraInfo } from "@/components/reward-extra-info";
 import type { RewardWithTags } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -32,6 +32,12 @@ export function RewardTable({
       cell: ({ row }) => {
         const r = row.original;
         const isExpanded = expandedId === r.id;
+        // Phase 4E: on desktop, expanding only ever reveals notes/tags/link
+        // (everything else is already a column) — dim the chevron when a
+        // reward has none of those, so it doesn't promise content that
+        // isn't there. Mobile always has something to show, so it keeps
+        // full visibility regardless.
+        const hasExtra = Boolean(r.notes) || r.tags.length > 0 || Boolean(r.official_url);
         return (
           // Phase 4D: no longer a Link to /reward/[id] — clicking anywhere
           // on the row (see the <tr onClick> below) expands/collapses this
@@ -41,7 +47,8 @@ export function RewardTable({
             <ChevronRight
               className={cn(
                 "h-4 w-4 shrink-0 text-muted transition-transform duration-200",
-                isExpanded && "rotate-90"
+                isExpanded && "rotate-90",
+                !hasExtra && "md:invisible"
               )}
             />
            <div className="min-w-0 flex-1 md:flex-none">
@@ -49,7 +56,7 @@ export function RewardTable({
     {r.store_name}
   </span>
 
-  <span className="mt-0.5 block truncate text-xs text-muted md:hidden">
+  <span className="mt-0.5 block truncate pr-2 text-xs text-muted md:hidden">
     {r.content}
   </span>
 </div>
@@ -198,6 +205,14 @@ export function RewardTable({
           {table.getRowModel().rows.map((row) => {
             const r = row.original;
             const isExpanded = expandedId === r.id;
+            // Phase 4E: on desktop, every field is already a column, so the
+            // expand panel only ever adds notes/tags/link. When a reward has
+            // none of those, expanding would just reveal an empty padded
+            // box — so we detect that case and collapse it to true zero
+            // height, and dim the chevron so it doesn't promise content
+            // that isn't there. Mobile always has something (rating/
+            // category/expiry aren't columns there), so it's unaffected.
+            const hasExtra = Boolean(r.notes) || r.tags.length > 0 || Boolean(r.official_url);
             return (
               <Fragment key={row.id}>
                 <tr
@@ -221,11 +236,17 @@ export function RewardTable({
                     </td>
                   ))}
                 </tr>
-                {/* Phase 4D: expand/collapse now works at every breakpoint
-                    (previously mobile-only) — same smooth grid-template-rows
-                    animation as before. Content reuses RewardCardBody, the
-                    same component the Card grid uses, so Grid and Table
-                    show identical reward details. */}
+                {/* Phase 4D: expand/collapse works at every breakpoint, same
+                    smooth grid-template-rows animation.
+                    Phase 4E: Desktop's row already shows every column
+                    (category/content/date/score/expiry/used/link), so its
+                    expand panel now only shows what's genuinely missing —
+                    notes, tags, official link (RewardExtraInfo). Mobile
+                    hides most of those columns, so its panel additionally
+                    repeats the full description plus rating/category/expiry
+                    — the only place they're visible there. Spacing kept
+                    tight/compact throughout, and the panel collapses to
+                    zero on desktop when there's nothing extra to show. */}
                 <tr>
                   <td colSpan={row.getVisibleCells().length} className="p-0">
                     <div
@@ -233,19 +254,24 @@ export function RewardTable({
                       style={{ gridTemplateRows: isExpanded ? "1fr" : "0fr" }}
                     >
                       <div className="overflow-hidden">
-                        <div className="border-t border-divider bg-bg/40 px-4 py-4">
-                          <RewardCardBody reward={r} clampDescription={false} />
-                          {r.official_url && (
-                            <a
-                              href={r.official_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              onClick={(e) => e.stopPropagation()}
-                              className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-lg border border-border bg-white px-4 py-2.5 text-center font-medium text-ink/90 hover:bg-bg"
-                            >
-                              前往官網
-                              <ExternalLink className="h-3.5 w-3.5" />
-                            </a>
+                        <div
+                          className={cn(
+                            "border-t border-divider bg-bg/40 px-4 py-3",
+                            !hasExtra && "md:border-t-0 md:bg-transparent md:py-0"
+                          )}
+                        >
+                          <div className="space-y-2 md:hidden">
+                            <p className="text-sm leading-normal text-ink/90">{r.content}</p>
+                            <div className="flex flex-wrap items-center gap-2">
+                              <StarRating score={r.score} />
+                              <CategoryBadge category={r.category} />
+                              <ExpiryBadge expiryDate={r.expiry_date} />
+                            </div>
+                          </div>
+                          {hasExtra && (
+                            <div className="mt-2 space-y-2 md:mt-0">
+                              <RewardExtraInfo reward={r} />
+                            </div>
                           )}
                         </div>
                       </div>
