@@ -2,6 +2,75 @@
 
 ## v4.0 (In Progress)
 
+### Phase 4E (mobile-only refinement) - Favorite Column Width
+
+Mobile-only. Desktop is unchanged.
+
+Changed
+
+- Mobile: Favorite column narrowed from 56px to 44px, with the freed width going to Store (the only other unconstrained visible column on mobile) — this shifts the whole Favorite column further toward the right edge without moving the heart icon within its own column; the header and icon remain centered via the same symmetric padding/`text-center` as before, regardless of column width
+- Desktop: Favorite stays at the agreed 56px, unaffected — the width is now `44px` on mobile / `md:56px` on desktop instead of a single unconditional value
+
+### Phase 4E (rendering fixes) - Store Truncation & Favorite Spacing
+
+A pass to fix the actual rendering bugs behind two remaining visual concerns, agreed on with a table-layout specification review first (widths unchanged: Store 136 / Category 80 / Content flexible / Date 72 / Rating 72 / Favorite 56 / Used 56). Table layout only — no sorting, filtering, favorites, used-status, data-fetching, expanded-row, Card View, or mobile-behavior changes.
+
+Changed
+
+- Desktop: fixed a real truncation bug in the Store cell — its text wrapper used `md:flex-none`, which disables flex-shrink and silently defeated the `truncate` ellipsis, letting long store names render at their natural width past the fixed 136px column instead of clipping to it. Switched to `flex-1 min-w-0` at every breakpoint, so the rendered width now actually matches the 136px column (this is why Store visually "felt wider" than its nominal width — the column was correctly 136px, the text inside it just wasn't being clipped to fit)
+- Mobile: removed a hardcoded `pr-2` on the store content preview line that added a fixed buffer regardless of text length, and gave Favorite its own compact, symmetric padding instead of the shared table-wide default — together these were stacking into what looked like unnecessary empty space between the content and the heart icon
+- Favorite's width synced to the agreed 56px (was still 64px in code from an earlier pass); table `min-w` recalculated (690px → 682px) to match
+
+### Phase 4E (mockup alignment) - Column Proportions & Store Width
+
+A pass to match the provided reference mockup's layout/proportions. No functional, sorting, filtering, favorites, used-status, data-fetching, expanded-row, Card View, or mobile-behavior changes — table layout only.
+
+Changed
+
+- Desktop: Store switched from a `min-width` floor to a true fixed `width` (136px, within the mockup's suggested 130–140px), matching the mockup's explicit "fixed smaller width" direction for this column
+- Desktop: Category/Date/Rating/Used widths trimmed slightly (84→80px, 80→72px, 80→72px, 64→56px respectively) to give more of the freed width to Reward Content, which was already unconstrained and now becomes even more clearly the dominant column — matching the mockup's ~50%-for-Content proportions
+- Favorite kept at 64px (already within the mockup's suggested 56–64px), unconditional across breakpoints as before
+- Confirmed alignment (Store/Content left, everything else — especially Favorite/Used — centered with header and content sharing the same center line) and the icon-only Used indicator both already matched the mockup from the prior pass; no further changes needed there
+- Table `min-w` recalculated (712px → 690px) to reflect the smaller utility-column footprint
+
+### Phase 4E (final polish) - Store/Content Balance & Favorite Centering
+
+A final testing-driven pass on desktop and mobile, closing out Phase 4E. No functional changes.
+
+Changed
+
+- Desktop: Store's `min-width` reduced from 144px to 136px, giving more of the freed space to Reward Content — the primary information on the site
+- Desktop: Favorite's custom padding override removed — it now shares the same default padding as every other unlisted column, so centering comes purely from its fixed width + `text-center`, with no padding-based positioning
+- Fixed a real bug behind the desktop Favorite mis-centering *and* the mobile Favorite/header misalignment: the icon cell's `text-center` was accidentally scoped to `md:` only, so on mobile the "收藏" header centered but the heart icon defaulted to the left. It's now unscoped (applies at every breakpoint), so header and icon share the same center line on both mobile and desktop
+- Mobile: Favorite's width is now an unconditional (non-breakpoint-scoped) `64px`, applied at every breakpoint rather than only on desktop — so it stays fixed on the far right with a small, constant footprint that Store/Reward Content can never push or affect, independent of either column's length
+
+### Phase 4E (UI refinements) - Table Sizing, Headers & Used Indicator
+
+A follow-up pass on the table work directly above, based on visual testing feedback. No functional changes.
+
+Changed
+
+- Desktop table: Store's `min-width` reduced from 160px to 144px, giving the freed space back to Reward Content
+- Desktop table: all headers now force `whitespace-nowrap` (previously only the Used label did), so short headers like "收藏" never break onto two lines
+- Desktop table: Used column replaced its "已兌換/未使用" text pill with a centered icon only (`SquareCheck` when used, `Square` when not) — the column header already says 使用, so the label was redundant; colored the same neutral palette as the Favorite heart (muted / accent-coffee) rather than green, so it doesn't read as its own accent
+- Desktop table: Favorite column given its own tight, symmetric padding so both its header and icon center exactly, with no leftover asymmetric space
+- Fixed a mobile regression: utility-column widths (Category/Date/Score/Favorite/Used) were being set via inline `style` on `<colgroup>`, which isn't responsive — some browsers still reserved that width even though those columns' cells are hidden on mobile, which pushed the Favorite icon out of its expected far-right position. Widths are now `md:`-scoped Tailwind classes instead, so mobile is unaffected and sizes itself purely from its two visible columns (Store, Favorite), matching pre-Phase-4E mobile behavior
+
+### Phase 4E (cont'd) - Table Layout & Header Spacing
+
+A follow-up pass on the same Phase 4E table, on top of the accordion work below. No functional changes.
+
+Changed
+
+- Desktop table: removed the "官網連結" (Official Link) and "截止日期" (Expiry Date) columns entirely — the official link is still reachable from the row's expand panel (`RewardExtraInfo`); expiry date still drives filtering/sorting and still appears on the Card view, it's just no longer a dedicated table column
+- Desktop table: switched to `table-fixed` with per-column widths sized to actual content instead of percentages — Category, Date, Score, Favorite, and Used each get a small fixed width (no wrap); Store gets a `min-width` floor (~160px) so it can flex slightly for longer names while staying much narrower than Reward Content; Reward Content itself is left unconstrained so it absorbs the remaining space as the primary flexible column, matching real data (store names are usually short, reward descriptions are usually the longest text in the table)
+- Desktop table: Store and Category sit visually closer together via tightened inner padding between them; all other column spacing is unchanged
+- Desktop table: Store and Reward Content are left-aligned; Category, Date, Score, Favorite, and Used are center-aligned — applied identically to headers and cells
+- Desktop table: Reward Content is single-line truncated at every breakpoint (previously 2-line clamp on desktop), and every cell has a consistent minimum row height, so collapsed rows are uniformly sized regardless of content length or icons
+- Desktop table: the "已兌換/未使用" status label never wraps onto two lines, and the Favorite heart icon stays centered in its column
+- Desktop table: `table-fixed` + explicit widths keep columns aligned and stable across common desktop widths instead of reflowing
+- Homepage header: Filter → Sort row spacing increased to match Search Bar → Filter spacing, so both gaps are visually consistent
+
 ### Phase 4E - Homepage UX Polish
 
 A refinement pass on top of Phase 4D. Reuses existing components; no functional changes.

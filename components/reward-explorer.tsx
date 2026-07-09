@@ -208,7 +208,9 @@ export function RewardExplorer({
             resultCount={sorted.length}
           />
         </div>
-        <div className="mt-3 flex items-center justify-end gap-2">
+        {/* Phase 4E: mt-4 (was mt-3) so this row's breathing space matches
+            the Search Bar → Filter gap above it. */}
+        <div className="mt-4 flex items-center justify-end gap-2">
           <SortMenu value={sort} onChange={setSort} />
           <ViewToggle mode={viewMode} onChange={setViewMode} />
         </div>

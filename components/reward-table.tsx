@@ -2,17 +2,74 @@
 
 import { Fragment, useState } from "react";
 import { useReactTable, getCoreRowModel, flexRender, type ColumnDef } from "@tanstack/react-table";
-import { Heart, Check, ExternalLink, ChevronRight } from "lucide-react";
+import { Heart, Square, SquareCheck, ChevronRight } from "lucide-react";
 import { CategoryBadge } from "@/components/tag-badge";
 import { StarRating } from "@/components/star-rating";
-import { ExpiryBadge } from "@/components/expiry-badge";
 import { RewardExtraInfo } from "@/components/reward-extra-info";
 import type { RewardWithTags } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 // Columns hidden on mobile (< md). Phase 3C keeps 收藏 / 店家 / 優惠內容(preview) visible
 // there; 日期 moves into the expanded accordion instead of showing as its own column.
-const MOBILE_HIDDEN_COLUMN_IDS = new Set(["category","content","date_category", "score", "expiry", "used", "link"]);
+const MOBILE_HIDDEN_COLUMN_IDS = new Set(["category", "content", "date_category", "score", "used"]);
+
+// Phase 4E (final polish, mockup-aligned): only the fixed-shape "utility"
+// columns and Store get an explicit width (see COLUMN_WIDTH_CLASSES
+// below), sized compactly. Reward Content is left completely unconstrained,
+// so under `table-fixed` it absorbs effectively all the remaining space —
+// making it the clear primary/dominant column (~50% in the reference
+// mockup), which matches real data: store names are usually short, reward
+// descriptions are usually the longest text in the table.
+//
+// Note: Store previously used a `min-width` floor (so it could flex for
+// longer names) rather than a hard `width`. The latest mockup calls for a
+// fixed smaller Store width specifically, so it's now a true `width` like
+// the other utility columns — Store text still truncates with an ellipsis
+// if a name is longer than the column, so nothing is lost.
+const CENTERED_COLUMN_IDS = new Set(["category", "date_category", "score", "favorite", "used"]);
+
+// Phase 4E (revised): Category gets a reduced left padding so it visually
+// sits closer to Store, without touching any other column's spacing.
+// Phase 4E (rendering fix): Favorite gets its own compact, symmetric
+// padding — the shared default (px-2/md:px-4) was generous enough,
+// relative to Favorite's narrow fixed column, that combined with the
+// heart button's own internal padding it read as extra empty space
+// around the icon. A tighter dedicated value keeps the icon visually
+// centered with no surrounding "gap."
+const COLUMN_PADDING: Record<string, string> = {
+  store: "pl-2 pr-1 md:pl-4 md:pr-2",
+  category: "pl-1 pr-2 md:pl-2 md:pr-4",
+  favorite: "px-1",
+};
+
+// Phase 4E (final polish, mockup-aligned): utility-column + Store widths,
+// applied as Tailwind classes on <col>. Category/Date/Score/Used/Store are
+// `md:`-scoped (desktop only) since Category/Date/Score/Used are hidden on
+// mobile — an unscoped width there previously caused a mobile regression
+// (some browsers reserve width for a "hidden" column) — and Store has no
+// width constraint at all on mobile (pure auto-sizing, unchanged there).
+// Favorite is different: it's visible on *both* mobile and desktop, so it
+// always gets an explicit width — a small, fixed footprint that Store/
+// Content can never push or affect, on mobile or desktop alike.
+//
+// Phase 4E (mobile-only refinement): Favorite is intentionally narrower on
+// mobile (44px) than on desktop (56px, matching the agreed spec: Store
+// 136 / Category 80 / Date 72 / Rating 72 / Favorite 56 / Used 56). This
+// is purely a column-width change — Favorite's header/icon are still
+// centered by the same symmetric padding + `text-center` regardless of
+// width (see COLUMN_PADDING/CENTERED_COLUMN_IDS), so the icon itself never
+// shifts within its own column. Shrinking the column just hands the freed
+// mobile space to Store (the only other unconstrained visible column
+// there), which moves Favorite's whole column — icon still centered
+// inside it — further toward the right edge.
+const COLUMN_WIDTH_CLASSES: Record<string, string> = {
+  store: "md:w-[136px]",
+  category: "md:w-[80px]",
+  date_category: "md:w-[72px]",
+  score: "md:w-[72px]",
+  favorite: "w-[44px] md:w-[56px]",
+  used: "md:w-[56px]",
+};
 
 export function RewardTable({
   rewards,
@@ -51,15 +108,23 @@ export function RewardTable({
                 !hasExtra && "md:invisible"
               )}
             />
-           <div className="min-w-0 flex-1 md:flex-none">
-  <span className="block truncate font-medium">
-    {r.store_name}
-  </span>
-
-  <span className="mt-0.5 block truncate pr-2 text-xs text-muted md:hidden">
-    {r.content}
-  </span>
-</div>
+            {/* Phase 4E (rendering fix): `flex-1 min-w-0` at every
+                breakpoint (previously `md:flex-none` on desktop) — flex-none
+                disables shrinking, which silently defeated the `truncate`
+                below and let long store names render at their natural
+                width past the fixed 136px column instead of ellipsing.
+                `md:flex-none` made sense under the old min-width-based
+                Store column (meant to flex for longer names); now that
+                Store is a true fixed width, it needs to always shrink to
+                fit, so the rendered width actually matches 136px. */}
+            <div className="min-w-0 flex-1">
+              <span className="block truncate font-medium">{r.store_name}</span>
+              {/* Phase 4E (rendering fix): dropped the hardcoded `pr-2` —
+                  it added a fixed buffer regardless of text length, which
+                  stacked with Favorite's own padding to look like an
+                  unnecessary gap on mobile. */}
+              <span className="mt-0.5 block truncate text-xs text-muted md:hidden">{r.content}</span>
+            </div>
           </div>
         );
       },
@@ -73,7 +138,11 @@ export function RewardTable({
       id: "content",
       header: "優惠內容",
       cell: ({ row }) => (
-        <span className="block min-w-0 w-full truncate text-ink/90 md:line-clamp-2 md:w-auto md:max-w-[320px] md:whitespace-normal">
+        // Phase 4E: single-line truncate at every breakpoint (previously
+        // 2-line clamp on desktop) — keeps every collapsed row the same
+        // height regardless of description length. The full text is still
+        // reachable by expanding the row.
+        <span className="block min-w-0 w-full truncate text-ink/90">
           {row.original.content}
         </span>
       ),
@@ -87,14 +156,6 @@ export function RewardTable({
       id: "score",
       header: "分數",
       cell: ({ row }) => <StarRating score={row.original.score} />,
-    },
-    {
-      id: "expiry",
-      header: "截止",
-      cell: ({ row }) => {
-        const info = row.original.expiry_date;
-        return info ? <ExpiryBadge expiryDate={info} /> : <span className="text-muted">—</span>;
-      },
     },
     {
       id: "favorite",
@@ -122,18 +183,20 @@ export function RewardTable({
       header: "使用",
       cell: ({ row }) => {
         const r = row.original;
-        const statusClasses = cn(
-          "flex items-center gap-1 rounded-pill border px-2 py-0.5 text-xs",
-          r.is_used
-            ? "border-accent-green bg-accent-green/15 text-accent-green"
-            : "border-border text-muted"
+        // Phase 4E (UI refinements): icon-only now that the column header
+        // already says 使用 — a text pill was redundant. Colored the same
+        // neutral palette as the Favorite heart (text-muted / accent-coffee)
+        // rather than green, so it doesn't read as a separate accent.
+        const icon = r.is_used ? (
+          <SquareCheck className="h-4 w-4 text-accent-coffee" />
+        ) : (
+          <Square className="h-4 w-4 text-muted" />
         );
         if (!onToggleUsed) {
           // Read-only for general visitors (v2: no public write access)
           return (
-            <span className={statusClasses}>
-              <Check className="h-3 w-3" />
-              {r.is_used ? "已兌換" : "未使用"}
+            <span aria-label={r.is_used ? "已兌換" : "未使用"}>
+              {icon}
             </span>
           );
         }
@@ -145,35 +208,11 @@ export function RewardTable({
               onToggleUsed(r.id, !r.is_used);
             }}
             aria-pressed={r.is_used}
-            className={statusClasses}
+            aria-label={r.is_used ? "已兌換" : "未使用"}
+            className="shrink-0 rounded-full p-1 hover:bg-bg"
           >
-            <Check className="h-3 w-3" />
-            {r.is_used ? "已兌換" : "未使用"}
+            {icon}
           </button>
-        );
-      },
-    },
-    {
-      id: "link",
-      header: "",
-     cell: ({ row }) => {
-  const r = row.original;
-
-  if (!r.official_url) {
-    return null;
-  }
-
-  return (
-    <a
-      href={r.official_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
-            aria-label={`前往 ${r.store_name} 官網`}
-            className="rounded-full p-1 text-muted hover:bg-bg"
-          >
-            <ExternalLink className="h-3.5 w-3.5" />
-          </a>
         );
       },
     },
@@ -183,7 +222,19 @@ export function RewardTable({
 
   return (
     <div className="overflow-x-auto rounded-card border border-border">
-      <table className="w-full border-collapse text-list md:min-w-[880px]">
+      {/* Phase 4E (final polish, mockup-aligned): `table-fixed` (desktop
+          only) still keeps columns stable across widths instead of
+          reflowing — Store and the utility columns each get an explicit
+          width via `md:`-scoped classes on <col> (Favorite excepted — see
+          COLUMN_WIDTH_CLASSES); Content is unconstrained and absorbs the
+          rest. `min-w` covers Store (136px) + the utility columns' total
+          (~336px) + a reasonable minimum for Content. */}
+      <table className="w-full border-collapse text-list md:min-w-[682px] md:table-fixed">
+        <colgroup>
+          {table.getAllLeafColumns().map((column) => (
+            <col key={column.id} className={COLUMN_WIDTH_CLASSES[column.id]} />
+          ))}
+        </colgroup>
         <thead>
           {table.getHeaderGroups().map((hg) => (
             <tr key={hg.id} className="border-b border-border bg-bg/60">
@@ -191,7 +242,9 @@ export function RewardTable({
                 <th
                   key={header.id}
                   className={cn(
-                    "px-2 md:px-4 py-3 text-left font-medium text-muted",
+                    "whitespace-nowrap py-3 font-medium text-muted",
+                    COLUMN_PADDING[header.column.id] ?? "px-2 md:px-4",
+                    CENTERED_COLUMN_IDS.has(header.column.id) ? "text-center" : "text-left",
                     MOBILE_HIDDEN_COLUMN_IDS.has(header.column.id) && "hidden md:table-cell"
                   )}
                 >
@@ -226,10 +279,22 @@ export function RewardTable({
                     <td
                       key={cell.id}
                       className={cn(
-                        "px-2 md:px-4 py-3 align-middle",
+                        // Phase 4E: `min-h` (rather than a fixed `h`) keeps
+                        // every collapsed row the same minimum height while
+                        // still letting a cell grow if it ever needs to.
+                        // `text-center` on the cell itself (rather than a
+                        // flex wrapper) is enough to center these columns'
+                        // inline content (badges, star rating, icon
+                        // buttons). Unscoped (not `md:text-center`) so
+                        // Favorite — the one centered column still visible
+                        // on mobile — centers there too; the others are
+                        // hidden on mobile so this has no visible effect
+                        // for them.
+                        "min-h-[52px] py-3 align-middle",
+                        COLUMN_PADDING[cell.column.id] ?? "px-2 md:px-4",
+                        CENTERED_COLUMN_IDS.has(cell.column.id) && "text-center",
                         MOBILE_HIDDEN_COLUMN_IDS.has(cell.column.id) && "hidden md:table-cell",
-                        cell.column.id === "content" && "min-w-0",
-                        cell.column.id === "favorite" && "pl-2 md:pl-4"
+                        cell.column.id === "content" && "min-w-0"
                       )}
                     >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -238,15 +303,18 @@ export function RewardTable({
                 </tr>
                 {/* Phase 4D: expand/collapse works at every breakpoint, same
                     smooth grid-template-rows animation.
-                    Phase 4E: Desktop's row already shows every column
-                    (category/content/date/score/expiry/used/link), so its
-                    expand panel now only shows what's genuinely missing —
-                    notes, tags, official link (RewardExtraInfo). Mobile
-                    hides most of those columns, so its panel additionally
-                    repeats the full description plus rating/category/expiry
-                    — the only place they're visible there. Spacing kept
-                    tight/compact throughout, and the panel collapses to
-                    zero on desktop when there's nothing extra to show. */}
+                    Phase 4E: Desktop's row already shows every remaining
+                    column (category/content/date/score/favorite/used), so
+                    its expand panel only shows what's genuinely missing —
+                    notes, tags, official link (RewardExtraInfo). Expiry date
+                    is no longer shown on desktop at all (its dedicated
+                    column was removed this phase; it still drives filtering/
+                    sorting and still appears on the Card view). Mobile hides
+                    most of those columns, so its panel additionally repeats
+                    the full description plus rating/category — the only
+                    place they're visible there. Spacing kept tight/compact
+                    throughout, and the panel collapses to zero on desktop
+                    when there's nothing extra to show. */}
                 <tr>
                   <td colSpan={row.getVisibleCells().length} className="p-0">
                     <div
