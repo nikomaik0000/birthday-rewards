@@ -120,17 +120,37 @@ export function AdminTable({ rewards }: { rewards: RewardWithTags[] }) {
       </div>
 
       <div className="overflow-x-auto rounded-card border border-border">
-        <table className="w-full border-collapse text-list">
+        {/* Phase 5A-1: desktop column order/proportions now mirror the
+            frontend table (Store/Category/Content/Date/Score), with Edit and
+            Delete split into their own fixed-width columns. `sm:table-fixed`
+            + the colgroup below hold those proportions, matching the
+            approach already used by the frontend RewardTable. Mobile is
+            unchanged from Phase 4A: Category/Content/Date/Score stay hidden
+            below `sm`, and Store + the two action buttons remain visible,
+            same as before. */}
+        <table className="w-full border-collapse text-list sm:table-fixed">
+          <colgroup>
+            <col className="w-10" />
+            <col className="sm:w-[18%]" />
+            <col className="sm:w-[10%]" />
+            <col />
+            <col className="sm:w-[8%]" />
+            <col className="sm:w-[8%]" />
+            <col className="w-10 sm:w-12" />
+            <col className="w-10 sm:w-12" />
+          </colgroup>
           <thead>
             <tr className="border-b border-border bg-bg/60">
-              <th className="w-10 px-2 py-3 sm:px-4">
+              <th className="px-2 py-3 sm:px-4">
                 <Checkbox checked={allSelected} onCheckedChange={toggleAll} aria-label="全選" />
               </th>
               <th className="px-2 py-3 text-left font-medium text-muted sm:px-4">店家</th>
               <th className="hidden px-4 py-3 text-left font-medium text-muted sm:table-cell">類別</th>
-              <th className="hidden px-4 py-3 text-left font-medium text-muted sm:table-cell">分數</th>
+              <th className="hidden px-4 py-3 text-left font-medium text-muted sm:table-cell">優惠內容</th>
               <th className="hidden px-4 py-3 text-left font-medium text-muted sm:table-cell">日期</th>
-              <th className="w-16 px-2 py-3 sm:w-20 sm:px-4" />
+              <th className="hidden px-4 py-3 text-left font-medium text-muted sm:table-cell">分數</th>
+              <th className="px-2 py-3 sm:px-4" />
+              <th className="px-2 py-3 sm:px-4" />
             </tr>
           </thead>
           <tbody>
@@ -148,29 +168,32 @@ export function AdminTable({ rewards }: { rewards: RewardWithTags[] }) {
                   <CategoryBadge category={r.category} />
                 </td>
                 <td className="hidden px-4 py-3 sm:table-cell">
-                  <StarRating score={r.score} />
+                  <span className="block max-w-full truncate text-ink/90">{r.content}</span>
                 </td>
                 <td className="hidden px-4 py-3 text-xs text-muted sm:table-cell">
                   {r.date_category}
                 </td>
+                <td className="hidden px-4 py-3 sm:table-cell">
+                  <StarRating score={r.score} />
+                </td>
                 <td className="px-2 py-3 sm:px-4">
-                  <div className="flex items-center justify-end gap-1">
-                    <Link
-                      href={`/admin/rewards/${r.id}/edit`}
-                      className="rounded-full p-1.5 text-muted hover:bg-bg"
-                      aria-label={`編輯 ${r.store_name}`}
-                    >
-                      <Pencil className="h-3.5 w-3.5" />
-                    </Link>
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteOne(r.id, r.store_name)}
-                      className="rounded-full p-1.5 text-muted hover:bg-bg"
-                      aria-label={`刪除 ${r.store_name}`}
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
+                  <Link
+                    href={`/admin/rewards/${r.id}/edit`}
+                    className="inline-flex rounded-full p-1.5 text-muted hover:bg-bg"
+                    aria-label={`編輯 ${r.store_name}`}
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                  </Link>
+                </td>
+                <td className="px-2 py-3 sm:px-4">
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteOne(r.id, r.store_name)}
+                    className="inline-flex rounded-full p-1.5 text-muted hover:bg-bg"
+                    aria-label={`刪除 ${r.store_name}`}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
                 </td>
               </tr>
             ))}

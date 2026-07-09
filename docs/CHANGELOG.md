@@ -2,6 +2,29 @@
 
 ## v4.0 (In Progress)
 
+### Phase 5A-2 - CSV Export Cleanup
+
+CSV export only (JSON/XLSX export, import, and the export button are unchanged).
+
+Changed
+
+- CSV export now includes only user-facing fields — Store/Category/Content/Date/Score/Official URL/Notes/Tags — dropping `expiry_date`, `is_favorite`, `is_used`, `click_count`, `created_at`, `updated_at`
+- CSV headers renamed to Traditional Chinese (店家/類別/優惠內容/日期/分數/官方網址/備註/標籤) in that fixed column order
+- CSV output now includes a UTF-8 BOM for reliable Excel compatibility
+- `exportRewardsData` (shared by CSV/XLSX/JSON) and the JSON/XLSX export paths are untouched — the field/header mapping is applied only inside the CSV branch of `downloadExport`
+
+### Phase 5A-1 - Admin Table Layout
+
+Desktop only. Mobile is unchanged from Phase 4A.
+
+Changed
+
+- Admin Rewards table column order now matches the frontend table: 店家 / 類別 / 優惠內容 / 日期 / 分數, with Edit and Delete split into their own columns (previously combined into one trailing column)
+- Added a Content column (single-line, truncated with ellipsis — never increases row height)
+- Column proportions approximate the frontend table: Store ~18%, Category ~10%, Content flexible (largest), Date ~8%, Score ~8%, Edit/Delete fixed width; `sm:table-fixed` + colgroup hold these proportions, same approach as the frontend `RewardTable`
+- Mobile: unchanged — Category/Content/Date/Score stay hidden below `sm`; Store and the two action buttons remain visible
+- No changes to search, sorting, pagination, selection, bulk delete, backend logic, or database schema
+
 ### Phase 4E (mobile-only refinement) - Favorite Column Width
 
 Mobile-only. Desktop is unchanged.

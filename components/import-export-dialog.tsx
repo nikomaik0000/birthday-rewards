@@ -136,7 +136,21 @@ function downloadExport(data: Record<string, unknown>[], format: "csv" | "xlsx" 
   }
 
   if (format === "csv") {
-    const csv = Papa.unparse(data);
+    // Phase 5A-2: CSV is meant for editing in Excel, so it only includes
+    // user-facing fields (no expiry_date / is_favorite / is_used /
+    // click_count / created_at / updated_at) with Traditional Chinese
+    // headers, in a fixed column order. JSON/XLSX export are unchanged.
+    const csvRows = data.map((r) => ({
+      店家: r.store_name,
+      類別: r.category,
+      優惠內容: r.content,
+      日期: r.date_category,
+      分數: r.score,
+      官方網址: r.official_url,
+      備註: r.notes,
+      標籤: r.tags,
+    }));
+    const csv = "\uFEFF" + Papa.unparse(csvRows);
     triggerDownload(new Blob([csv], { type: "text/csv;charset=utf-8;" }), filename);
     return;
   }
