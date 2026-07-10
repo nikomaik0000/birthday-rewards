@@ -15,7 +15,7 @@ export function RewardCardBody({
   pinBadgesToBottom = false,
 }: {
   reward: RewardWithTags;
-  // Card grid clips the description to 3 lines to keep every card the same
+  // Card grid clips the description to 2 lines to keep every card the same
   // height; the Table's expand panel isn't height-constrained, so it shows
   // the full description instead.
   clampDescription?: boolean;
@@ -27,18 +27,27 @@ export function RewardCardBody({
 }) {
   return (
     <>
-      <p className={cn("text-sm leading-normal text-ink/90", clampDescription && "line-clamp-3")}>
+      <p className={cn("text-sm leading-6 text-ink/90", clampDescription && "line-clamp-2")}>
         {reward.content}
       </p>
 
       {/* Notes only render when present. The gap above them is deliberately
           larger than the description's own line-height, so they read as a
-          clearly separate, secondary line rather than a continuation. */}
-      {reward.notes && (
-        <p className="mt-4 truncate text-xs font-normal text-muted/70">
-          <span className="text-muted/50">› </span>
-          {reward.notes}
-        </p>
+          clearly separate, secondary line rather than a continuation.
+          Phase 5C: clamped to 2 lines (instead of a single truncated line)
+          so longer notes stay readable within the same fixed card height.
+          `leading-relaxed` gives the two lines breathing room, and the
+          pl-3/-indent-3 pair is a hanging indent — the "›" marker sits in
+          the indent on line one, and the wrapped second line lines up with
+          the start of the note text instead of the marker. */}
+         {reward.notes && (
+        <div className="mt-4 flex items-start gap-1">
+          <span className="shrink-0 text-muted/50">›</span>
+
+          <p className="line-clamp-2 text-xs font-normal leading-6 text-muted/70">
+            {reward.notes}
+          </p>
+        </div>
       )}
 
       {/* Badge row: Category → Validity Period → Redemption Method(s), one
