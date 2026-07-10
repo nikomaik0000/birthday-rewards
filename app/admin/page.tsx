@@ -22,7 +22,7 @@ export default async function AdminPage() {
         <div className="flex items-center gap-2">
           <ImportExportDialog />
           <Link href="/admin/rewards/new">
-            <Button size="sm" className="gap-1.5">
+            <Button variant="primary" size="sm" className="gap-1.5">
               <Plus className="h-4 w-4" />
               新增優惠
             </Button>

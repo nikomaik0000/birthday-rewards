@@ -8,6 +8,10 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: "bg-ink text-bg hover:opacity-90",
+        // Phase 5B: shared frontend-style primary action button — reuses
+        // the existing accentSoft (#DDD5CC) / ink (#555555) design tokens
+        // already used for active/selected states across the frontend.
+        primary: "bg-accentSoft text-ink hover:opacity-90",
         outline:
           "border border-border bg-transparent hover:bg-surface text-ink",
         ghost: "bg-transparent hover:bg-surface text-ink",

@@ -13,12 +13,10 @@ export function RewardForm({
   defaultValues,
   onSubmit,
   submitLabel = "儲存",
-  compact = false,
 }: {
   defaultValues?: Partial<RewardFormValues>;
   onSubmit: (values: RewardFormValues) => Promise<void> | void;
   submitLabel?: string;
-  compact?: boolean;
 }) {
   const {
     register,
@@ -46,6 +44,10 @@ export function RewardForm({
     <form onSubmit={handleSubmit(async (v) => onSubmit(v))} className="stack-16">
       <Field label="店家名稱" error={errors.store_name?.message}>
         <Input {...register("store_name")} placeholder="例如：星巴克" autoFocus />
+      </Field>
+
+      <Field label="優惠內容" error={errors.content?.message}>
+        <Textarea {...register("content")} rows={3} placeholder="例如：生日當天買一送一" />
       </Field>
 
       <div className="grid grid-cols-2 gap-4">
@@ -76,18 +78,9 @@ export function RewardForm({
         </Field>
       </div>
 
-      <Field label="優惠內容" error={errors.content?.message}>
-        <Textarea {...register("content")} rows={3} placeholder="例如：生日當天買一送一" />
+      <Field error={errors.official_url?.message}>
+        <Input {...register("official_url")} placeholder="https://" inputMode="url" />
       </Field>
-
-      <div className="grid grid-cols-2 gap-4">
-        <Field label="官方網址" error={errors.official_url?.message}>
-          <Input {...register("official_url")} placeholder="https://" inputMode="url" />
-        </Field>
-        <Field label="截止日期" error={errors.expiry_date?.message}>
-          <Input {...register("expiry_date")} type="date" />
-        </Field>
-      </div>
 
       <Field label="分數">
         <Controller
@@ -97,27 +90,19 @@ export function RewardForm({
         />
       </Field>
 
-      {!compact && (
-        <>
-          <Field label="Logo 網址（留空則顯示店名字首）" error={errors.logo_url?.message}>
-            <Input {...register("logo_url")} placeholder="https://" inputMode="url" />
-          </Field>
+      <Field label="標籤">
+        <Controller
+          control={control}
+          name="tagNames"
+          render={({ field }) => <TagInput value={field.value ?? []} onChange={field.onChange} />}
+        />
+      </Field>
 
-          <Field label="標籤">
-            <Controller
-              control={control}
-              name="tagNames"
-              render={({ field }) => <TagInput value={field.value ?? []} onChange={field.onChange} />}
-            />
-          </Field>
+      <Field label="備註">
+        <Textarea {...register("notes")} rows={2} placeholder="例如：需先加入會員" />
+      </Field>
 
-          <Field label="使用心得">
-            <Textarea {...register("notes")} rows={2} placeholder="例如：需先加入會員" />
-          </Field>
-        </>
-      )}
-
-      <Button type="submit" disabled={isSubmitting} className="w-full">
+      <Button type="submit" variant="primary" disabled={isSubmitting} className="w-full">
         {isSubmitting ? "儲存中..." : submitLabel}
       </Button>
     </form>
@@ -129,13 +114,13 @@ function Field({
   error,
   children,
 }: {
-  label: string;
+  label?: string;
   error?: string;
   children: React.ReactNode;
 }) {
   return (
     <div>
-      <label className="mb-1.5 block text-xs font-medium text-muted">{label}</label>
+      {label && <label className="mb-1.5 block text-xs font-medium text-muted">{label}</label>}
       {children}
       {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
     </div>

@@ -49,7 +49,7 @@ export function ImportExportDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-1.5">
+        <Button variant="primary" size="sm" className="gap-1.5">
           <Upload className="h-3.5 w-3.5" />
           匯入 / 匯出
         </Button>
@@ -87,7 +87,7 @@ export function ImportExportDialog() {
             <h3 className="mb-2 text-sm font-medium">匯出</h3>
             <div className="flex flex-wrap gap-2">
               {(["csv", "xlsx", "json"] as const).map((f) => (
-                <Button key={f} variant="outline" size="sm" disabled={busy} onClick={() => handleExport(f)} className="gap-1.5">
+                <Button key={f} variant="primary" size="sm" disabled={busy} onClick={() => handleExport(f)} className="gap-1.5">
                   <Download className="h-3.5 w-3.5" />
                   {f.toUpperCase()}
                 </Button>

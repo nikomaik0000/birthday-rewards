@@ -70,7 +70,7 @@ export function NewRewardForm() {
           placeholder="貼上官方優惠網址，自動帶入資料"
           className="flex-1"
         />
-        <Button type="button" variant="outline" size="sm" onClick={handleExtract} disabled={extracting} className="gap-1.5">
+        <Button type="button" variant="primary" size="sm" onClick={handleExtract} disabled={extracting} className="gap-1.5">
           <Wand2 className="h-3.5 w-3.5" />
           {extracting ? "擷取中..." : "自動擷取"}
         </Button>
