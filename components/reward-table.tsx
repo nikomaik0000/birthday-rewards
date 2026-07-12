@@ -63,7 +63,7 @@ const COLUMN_PADDING: Record<string, string> = {
 // there), which moves Favorite's whole column — icon still centered
 // inside it — further toward the right edge.
 const COLUMN_WIDTH_CLASSES: Record<string, string> = {
-  store: "md:w-[136px]",
+  store: "md:w-[200px]",
   category: "md:w-[80px]",
   date_category: "md:w-[72px]",
   score: "md:w-[72px]",
