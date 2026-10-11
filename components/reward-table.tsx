@@ -9,9 +9,9 @@ import { RewardExtraInfo } from "@/components/reward-extra-info";
 import type { RewardWithTags } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-// Columns hidden on mobile (< md). Phase 3C keeps 收藏 / 店家 / 優惠內容(preview) visible
+// Columns hidden on mobile (< md). Keep 店家 / 優惠內容(preview) / 收藏 / 使用 visible
 // there; 日期 moves into the expanded accordion instead of showing as its own column.
-const MOBILE_HIDDEN_COLUMN_IDS = new Set(["category", "content", "date_category", "score", "used"]);
+const MOBILE_HIDDEN_COLUMN_IDS = new Set(["category", "content", "date_category", "score"]);
 
 // Phase 4E (final polish, mockup-aligned): only the fixed-shape "utility"
 // columns and Store get an explicit width (see COLUMN_WIDTH_CLASSES
@@ -40,35 +40,36 @@ const COLUMN_PADDING: Record<string, string> = {
   store: "pl-2 pr-1 md:pl-4 md:pr-2",
   category: "pl-1 pr-2 md:pl-2 md:pr-4",
   favorite: "px-1",
+  used: "px-1 md:px-4",
 };
 
 // Phase 4E (final polish, mockup-aligned): utility-column + Store widths,
-// applied as Tailwind classes on <col>. Category/Date/Score/Used/Store are
-// `md:`-scoped (desktop only) since Category/Date/Score/Used are hidden on
+// applied as Tailwind classes on <col>. Category/Date/Score/Store are
+// `md:`-scoped (desktop only) since Category/Date/Score are hidden on
 // mobile — an unscoped width there previously caused a mobile regression
-// (some browsers reserve width for a "hidden" column) — and Store has no
-// width constraint at all on mobile (pure auto-sizing, unchanged there).
-// Favorite is different: it's visible on *both* mobile and desktop, so it
-// always gets an explicit width — a small, fixed footprint that Store/
+// (some browsers reserve width for a "hidden" column). Mobile uses fixed
+// layout with Store taking the remaining width after the utility columns.
+// Favorite and Used are visible on *both* mobile and desktop, so each
+// gets an explicit width — a small, fixed footprint that Store/
 // Content can never push or affect, on mobile or desktop alike.
 //
-// Phase 4E (mobile-only refinement): Favorite is intentionally narrower on
+// Phase 4E (mobile-only refinement): Favorite and Used are narrower on
 // mobile (44px) than on desktop (56px, matching the agreed spec: Store
 // 136 / Category 80 / Date 72 / Rating 72 / Favorite 56 / Used 56). This
 // is purely a column-width change — Favorite's header/icon are still
 // centered by the same symmetric padding + `text-center` regardless of
 // width (see COLUMN_PADDING/CENTERED_COLUMN_IDS), so the icon itself never
 // shifts within its own column. Shrinking the column just hands the freed
-// mobile space to Store (the only other unconstrained visible column
+// mobile space to Store (the only unconstrained visible column
 // there), which moves Favorite's whole column — icon still centered
 // inside it — further toward the right edge.
 const COLUMN_WIDTH_CLASSES: Record<string, string> = {
-  store: "md:w-[200px]",
+  store: "w-full md:w-[200px]",
   category: "md:w-[80px]",
   date_category: "md:w-[72px]",
   score: "md:w-[72px]",
   favorite: "w-[44px] md:w-[56px]",
-  used: "md:w-[56px]",
+  used: "w-[44px] md:w-[56px]",
 };
 
 export function RewardTable({
@@ -222,17 +223,22 @@ export function RewardTable({
 
   return (
     <div className="overflow-x-auto rounded-card border border-border">
-      {/* Phase 4E (final polish, mockup-aligned): `table-fixed` (desktop
-          only) still keeps columns stable across widths instead of
+      {/* `table-fixed` keeps columns stable across widths instead of
           reflowing — Store and the utility columns each get an explicit
-          width via `md:`-scoped classes on <col> (Favorite excepted — see
+          width via `md:`-scoped classes on <col> (Favorite/Used excepted — see
           COLUMN_WIDTH_CLASSES); Content is unconstrained and absorbs the
           rest. `min-w` covers Store (136px) + the utility columns' total
           (~336px) + a reasonable minimum for Content. */}
-      <table className="w-full border-collapse text-list md:min-w-[682px] md:table-fixed">
+      <table className="w-full table-fixed border-collapse text-list md:min-w-[682px]">
         <colgroup>
           {table.getAllLeafColumns().map((column) => (
-            <col key={column.id} className={COLUMN_WIDTH_CLASSES[column.id]} />
+            <col
+              key={column.id}
+              className={cn(
+                COLUMN_WIDTH_CLASSES[column.id],
+                MOBILE_HIDDEN_COLUMN_IDS.has(column.id) && "hidden md:table-column"
+              )}
+            />
           ))}
         </colgroup>
         <thead>
@@ -286,8 +292,8 @@ export function RewardTable({
                         // flex wrapper) is enough to center these columns'
                         // inline content (badges, star rating, icon
                         // buttons). Unscoped (not `md:text-center`) so
-                        // Favorite — the one centered column still visible
-                        // on mobile — centers there too; the others are
+                        // Favorite and Used — the centered columns visible
+                        // on mobile — center there too; the others are
                         // hidden on mobile so this has no visible effect
                         // for them.
                         "min-h-[52px] py-3 align-middle",

@@ -2,6 +2,13 @@
 
 ## v4.0 (In Progress)
 
+### Mobile Table - Used Column
+
+- Fixed mobile width allocation with fixed table layout, hidden desktop-only col elements, and Store consuming the remaining width; 收藏/使用 stay at 44px each without trailing empty columns or long-text overflow. Desktop column sizing is unchanged.
+- Mobile table mode now shows the existing 使用 column to the right of 收藏, reusing the desktop icons, toggle handler, and shared used-status data for checking and unchecking.
+- 收藏 and 使用 each occupy a centered 44px mobile column, leaving Store the remaining space and preserving its name, preview, and expand arrow arrangement.
+- Desktop layout, other mobile views, and used-status storage/synchronization logic are unchanged.
+
 ### Phase 5A-2 - CSV Export Cleanup
 
 CSV export only (JSON/XLSX export, import, and the export button are unchanged).

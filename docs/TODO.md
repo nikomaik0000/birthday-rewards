@@ -2,6 +2,8 @@
 
 ## Done
 
+- Mobile Table Width Fix - Fixed mobile table layout and col visibility so Store fills the remaining width beside two centered 44px action columns, without trailing blank space or horizontal overflow; desktop sizing and toggle logic are unchanged.
+- Mobile Table Used Column - Added 使用 at the far right using the existing desktop toggle and shared used-status data; mobile 收藏/使用 columns are centered at 44px each, with desktop layout, other views, and storage/synchronization unchanged.
 - CSV Export Cleanup (Phase 5A-2) — CSV export (only) now includes just the user-facing fields (店家/類別/優惠內容/日期/分數/官方網址/備註/標籤) in that order, with Traditional Chinese headers and a UTF-8 BOM; JSON/XLSX export, import, and the export button are untouched
 - Admin Table Layout (Phase 5A-1) — Desktop Admin Rewards table reordered to match the frontend table (Store/Category/Content/Date/Score) with a new single-line, ellipsis-truncated Content column, and Edit/Delete split into separate fixed-width columns; column proportions approximate the frontend table via `sm:table-fixed` + colgroup; mobile layout unchanged from Phase 4A; no changes to search/sort/pagination/selection/bulk delete/backend/schema
 - Homepage UX Polish (Phase 4E, mobile-only refinement) — Mobile Favorite column narrowed 56px→44px, with the freed width handed to Store (the only other unconstrained visible mobile column) — shifts the whole Favorite column further right without moving the heart icon within its own column; header/icon stay centered via the same symmetric padding as before; Desktop unchanged, still 56px
